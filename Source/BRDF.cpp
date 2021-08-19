@@ -8,7 +8,7 @@ Elite::RGBColor BRDF::Lambert(const Elite::RGBColor& diffuseReflectance, const E
 Elite::RGBColor BRDF::Phong(float specularReflectance, int phongExponent, const Elite::FVector3& lightVector, const Elite::FVector3& viewVector, const Elite::FVector3& normal)
 {
 	float lDotN = Elite::Dot(lightVector, normal);
-	return Elite::RGBColor(1.f, 1.f, 1.f) * specularReflectance * pow(Elite::Dot(lightVector - (lDotN + lDotN) * normal, -viewVector), phongExponent);
+	return Elite::RGBColor(1.f, 1.f, 1.f) * specularReflectance * powf(Elite::Dot(lightVector - (lDotN + lDotN) * normal, -viewVector), float(phongExponent));
 }
 
 Elite::RGBColor BRDF::Cook_Torrance(const Elite::RGBColor& dfg, const Elite::FVector3& lightVector, const Elite::FVector3& viewVector, const Elite::FVector3& normal, const Elite::RGBColor& albedo)
@@ -26,7 +26,7 @@ float BRDFUtils::RoughnessNormalDistrubtion(const Elite::FVector3& normal, const
 
 Elite::RGBColor BRDFUtils::FresnelReflectance(const Elite::FVector3& halfVector, const Elite::FVector3& viewVector, const Elite::RGBColor& albedo)
 {
-	return albedo + (Elite::RGBColor(1.f, 1.f, 1.f) - albedo) * pow(1 - Elite::Dot(halfVector, viewVector), 5);
+	return albedo + (Elite::RGBColor(1.f, 1.f, 1.f) - albedo) * powf(1 - Elite::Dot(halfVector, viewVector), 5.f);
 }
 
 float BRDFUtils::ShadowMaskIndex(const Elite::FVector3& normal, const Elite::FVector3& viewVector, float roughness)
