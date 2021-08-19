@@ -96,6 +96,19 @@ void InitScene2()
 	SceneManager::GetInstance()->AddScene(std::move(scene2));
 }
 
+void DisplayInfo()
+{
+	std::cout << "----------RAYTRACER----------\n";
+	std::cout << "	WASD + Left/right mouse button down: moving camera\n";
+	std::cout << "	Left/Right mouse button down: Rotating camera\n";
+	std::cout << "	J: Toggle directional lights\n";
+	std::cout << "	K: Toggle Point Light 1\n";
+	std::cout << "	L: Toggle Point Light 2\n";
+	std::cout << "	J: Toggle Hard Shadows\n";
+	std::cout << "	T: Toggle All/BRDF only/Light Only\n";
+	std::cout << "	space: switch scene\n";
+}
+
 int main(int argc, char* args[])
 {
 	//Unreferenced parameters
@@ -123,6 +136,7 @@ int main(int argc, char* args[])
 	InitMaterials();
 	InitScene1();
 	InitScene2();
+	DisplayInfo();
 
 	//Start loop
 	pTimer->Start();
@@ -160,12 +174,12 @@ int main(int argc, char* args[])
 
 		//--------- Timer ---------
 		pTimer->Update();
-		printTimer += pTimer->GetElapsed();
-		if (printTimer >= 1.f)
-		{
-			printTimer = 0.f;
-			std::cout << "FPS: " << pTimer->GetFPS() << std::endl;
-		}
+		//printTimer += pTimer->GetElapsed();
+		//if (printTimer >= 1.f)
+		//{
+		//	printTimer = 0.f;
+		//	std::cout << "FPS: " << pTimer->GetFPS() << std::endl;
+		//}
 
 		//Save screenshot after full render
 		if (takeScreenshot)
