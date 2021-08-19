@@ -130,9 +130,9 @@ void PerspectiveCamera::Translate(const Elite::FVector3& offset)
 	m_LookAtMatrix *= MakeTranslation(offset);
 }
 
-void PerspectiveCamera::RotateCamera(float roll, float pitch, float yaw)
+void PerspectiveCamera::RotateCamera(float roll, float pitch, float)
 {
-	float rollRad{ roll * float(E_TO_RADIANS) }, pitchRad{ pitch * float(E_TO_RADIANS) }, yawRad{ yaw * float(E_TO_RADIANS) };
+	float rollRad{ roll * float(E_TO_RADIANS) }, pitchRad{ pitch * float(E_TO_RADIANS) };
 
 	Rotate(m_LookAtMatrix, Quaternion<float>(pitchRad, Utils::GetWorldY<float>()) * Quaternion<float>(rollRad, Elite::FVector3(m_LookAtMatrix[0])));
 }

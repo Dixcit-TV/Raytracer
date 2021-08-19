@@ -18,7 +18,7 @@ Elite::RGBColor LambertCookTorranceMaterial::Shade(const HitRecord& hitRecord, c
 	Elite::RGBColor f{ BRDFUtils::FresnelReflectance(halfVector, viewVector, albedo) };
 	float g{ BRDFUtils::ShadowMaskIndex(hitRecord.normal, viewVector, m_Roughness) * BRDFUtils::ShadowMaskIndex(hitRecord.normal, lightVector, m_Roughness) };
 
-	Elite::RGBColor brdfCT{ BRDF::Cook_Torrance((f * d * g), lightVector, viewVector, hitRecord.normal, albedo) };
+	Elite::RGBColor brdfCT{ BRDF::Cook_Torrance((f * d * g), lightVector, viewVector, hitRecord.normal) };
 	
 	if (m_IsMetal)
 		return brdfCT;

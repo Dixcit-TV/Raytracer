@@ -5,7 +5,7 @@ DirectionalLight::DirectionalLight(const Elite::FVector3& direction, float inten
 	, m_Direction{ direction }
 {}
 
-Elite::FVector3 DirectionalLight::GetDirection(const Elite::FPoint3& lookAt) const
+Elite::FVector3 DirectionalLight::GetDirection(const Elite::FPoint3&) const
 {
 	return m_Direction;
 }

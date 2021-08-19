@@ -140,7 +140,7 @@ int main(int argc, char* args[])
 
 	//Start loop
 	pTimer->Start();
-	float printTimer = 0.f;
+	//float printTimer = 0.f;
 	bool isLooping = true;
 	bool takeScreenshot = false;
 	while (isLooping)

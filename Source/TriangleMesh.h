@@ -10,7 +10,7 @@ public:
 	explicit TriangleMesh(const std::string& objPath, const Elite::FMatrix4& transform, Material* pMaterial, bool isStatic = false, CullMode cullMode = CullMode::NONE);
 	~TriangleMesh() override = default;
 
-	void Update(float deltaT) override {};
+	void Update(float) override {}
 	bool HitCheck(HitRecord& hitRecord, bool isShadowTest = false) const override;
 
 private:
