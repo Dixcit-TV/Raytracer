@@ -1,0 +1,227 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Math">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{ddb17eba-e15e-4597-8bf6-064b16b159d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Helpers">
+      <UniqueIdentifier>{72056cb6-72a2-42b7-b05e-376f1ddd957e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RayTracer">
+      <UniqueIdentifier>{115fb84d-8ece-4181-8fd0-bd3d1a567734}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RayTracer\Objects">
+      <UniqueIdentifier>{278ed791-5d1d-49d7-8fa9-8d3aaa76ea2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RayTracer\Objects\Derived">
+      <UniqueIdentifier>{5c816fd2-80cb-4442-9ce9-ef6bdaf9785a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RayTracer\Lights">
+      <UniqueIdentifier>{a601df34-4e43-44ed-8cdf-4ac431b0c54a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RayTracer\Lights\Derived">
+      <UniqueIdentifier>{e127586a-94cf-45fc-920e-d90507db503a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RayTracer\Material">
+      <UniqueIdentifier>{414a3e49-9f85-4cfd-8805-65339753b837}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RayTracer\Material\Derived">
+      <UniqueIdentifier>{fdd4cf87-9852-444d-a064-da858ae99b05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RayTracer\Manager">
+      <UniqueIdentifier>{d8975d55-f744-4e8d-a921-5a81a9f1a182}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="RayTracer.props" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="EMath.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="EMathUtilities.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="EMatrix.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="EMatrix2.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="EMatrix3.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="EMatrix4.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="EPoint.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="EPoint2.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="EPoint3.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="EPoint4.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="EVector.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="EVector2.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="EVector3.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="EVector4.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="ERenderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ERGBColor.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="ETimer.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="Structs.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>RayTracer\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>RayTracer\Objects\Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="Plane.h">
+      <Filter>RayTracer\Objects\Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="PerspectiveCamera.h">
+      <Filter>RayTracer</Filter>
+    </ClInclude>
+    <ClInclude Include="Quaternion.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>RayTracer\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneGraph.h">
+      <Filter>RayTracer</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLight.h">
+      <Filter>RayTracer\Lights\Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectionalLight.h">
+      <Filter>RayTracer\Lights\Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>RayTracer\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="LambertMaterial.h">
+      <Filter>RayTracer\Material\Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="BRDF.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialManager.h">
+      <Filter>RayTracer\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="LambertPhongMaterial.h">
+      <Filter>RayTracer\Material\Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="LambertCookTorranceMaterial.h">
+      <Filter>RayTracer\Material\Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="Enums.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.h">
+      <Filter>RayTracer\Objects\Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="TriangleMesh.h">
+      <Filter>RayTracer\Objects\Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectSettings.h">
+      <Filter>RayTracer\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>RayTracer\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ERenderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="ETimer.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="Structs.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>RayTracer\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Plane.cpp">
+      <Filter>RayTracer\Objects\Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>RayTracer\Objects\Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="PerspectiveCamera.cpp">
+      <Filter>RayTracer</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>RayTracer\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneGraph.cpp">
+      <Filter>RayTracer</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLight.cpp">
+      <Filter>RayTracer\Lights\Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectionalLight.cpp">
+      <Filter>RayTracer\Lights\Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="LambertMaterial.cpp">
+      <Filter>RayTracer\Material\Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialManager.cpp">
+      <Filter>RayTracer\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="LambertPhongMaterial.cpp">
+      <Filter>RayTracer\Material\Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="BRDF.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="LambertCookTorranceMaterial.cpp">
+      <Filter>RayTracer\Material\Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="Triangle.cpp">
+      <Filter>RayTracer\Objects\Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="TriangleMesh.cpp">
+      <Filter>RayTracer\Objects\Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectSettings.cpp">
+      <Filter>RayTracer\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>RayTracer\Manager</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
