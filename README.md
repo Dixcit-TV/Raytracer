@@ -1,3 +1,3 @@
 # Raytracer
 
-Left Handed Software Raytracer
+Right-Handed Software Raytracer
