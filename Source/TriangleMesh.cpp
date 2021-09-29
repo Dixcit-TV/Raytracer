@@ -34,6 +34,8 @@ bool TriangleMesh::HitCheck(HitRecord& hitRecord, bool isShadowTest) const
 		float det, inv_det, u, v, t;
 		const float epsilon{ 0.0001f };
 
+		//Dynamic meshes: Calculate vertex position each frame
+		//Static meshes: Use pre-calculated vertex position
 		int vIdx{ m_iBuffer[idx] };
 		worldV0 = m_IsStatic ? m_vBuffer[vIdx] : Elite::FPoint3(m_Transform * Elite::FPoint4(m_vBuffer[vIdx]));
 		vIdx = m_iBuffer[idx + 1];
@@ -46,6 +48,7 @@ bool TriangleMesh::HitCheck(HitRecord& hitRecord, bool isShadowTest) const
 		rayDir_x_edge02 = Elite::Cross(hitRecord.ray.direction, edge02);
 		det = Elite::Dot(rayDir_x_edge02, edge01);
 
+		//Allow Cull mode handling
 		switch (m_CullMode)
 		{
 		case CullMode::BACKFACE:
@@ -66,20 +69,25 @@ bool TriangleMesh::HitCheck(HitRecord& hitRecord, bool isShadowTest) const
 		V0ToRay = hitRecord.ray.origin - worldV0;
 		u = Elite::Dot(rayDir_x_edge02, V0ToRay) * inv_det;
 
+		//Check validity of first baricentric coordinate, discard triangle if invalid
 		if (u < 0.f || u > 1.f)
 			continue;
 
 		V0ToRay_x_edge01 = Elite::Cross(V0ToRay, edge01);
 		v = Elite::Dot(V0ToRay_x_edge01, hitRecord.ray.direction) * inv_det;
 
+		//Check validity of second baricentric coordinate, discard triangle if invalid
 		if (v < 0.f || u + v > 1.f)
 			continue;
 
 		t = Elite::Dot(V0ToRay_x_edge01, edge02) * inv_det;
 
+		//Check if the hit point is neither too far or if no closer hit point was already found
+		//discard triangle if it's the case
 		if (t < hitRecord.ray.minT || t > hitRecord.t)
 			continue;
 
+		//In case of shadow tracing, just stop any further check as soon as one obstructing hit was found
 		if (isShadowTest)
 		{
 			result = true;
