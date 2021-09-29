@@ -23,6 +23,15 @@ The raytracer has some basic features you would expect:
 - Dynamic right-handed camera (UE4-like controls)
 - Quaternion-based camera rotations
 
+## The Result
+
+Rendered on the image below:
+- 6 spheres, all with different material settings: The 3 top spheres are assigned metalic cook-torrance materials with different metal fresnel (Aluminium, Gold, Iron) and different roughness. Then the 3 bottom spheres are assigned non-metallic cook-torrance materials.
+- 3 rotating triangles, all with different culling modes: from left to right, Frontface-, Backface- & No-Culling.
+- 2 Point Lights
+- 1 Directional Light
+
+![Raytracer_Scene1_1](https://user-images.githubusercontent.com/76394390/135266665-99590558-2eea-4991-8ceb-1e0fb307c4cd.png)
 
 
 Rendered on the image below:
