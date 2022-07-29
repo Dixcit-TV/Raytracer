@@ -131,8 +131,8 @@ int main(int argc, char* args[])
 
 	//Initialize "framework"
 	Elite::Timer* pTimer = new Elite::Timer();
-	Elite::Renderer* pRenderer = new Elite::Renderer(pWindow);
 	PerspectiveCamera* pCamera = new PerspectiveCamera(Elite::FPoint3(0.f, 3.f, 10.f), Elite::FVector3(0.f, 0.f, 1.f), float(width) / height, 45.f);
+	Elite::Renderer* pRenderer = new Elite::Renderer(pWindow, pCamera);
 	InitMaterials();
 	InitScene1();
 	InitScene2();
@@ -140,7 +140,7 @@ int main(int argc, char* args[])
 
 	//Start loop
 	pTimer->Start();
-	//float printTimer = 0.f;
+	float printTimer = 0.f;
 	bool isLooping = true;
 	bool takeScreenshot = false;
 	while (isLooping)
@@ -170,16 +170,16 @@ int main(int argc, char* args[])
 		SceneManager::GetInstance()->GetActiveScene().Update(pTimer->GetElapsed());
 
 		//--------- Render ---------
-		pRenderer->Render(pCamera);
+		pRenderer->Render();
 
 		//--------- Timer ---------
 		pTimer->Update();
-		//printTimer += pTimer->GetElapsed();
-		//if (printTimer >= 1.f)
-		//{
-		//	printTimer = 0.f;
-		//	std::cout << "FPS: " << pTimer->GetFPS() << std::endl;
-		//}
+		printTimer += pTimer->GetElapsed();
+		if (printTimer >= 1.f)
+		{
+			printTimer = 0.f;
+			std::cout << "\r\33[2K" << "FPS: " << pTimer->GetFPS();
+		}
 
 		//Save screenshot after full render
 		if (takeScreenshot)
@@ -194,8 +194,8 @@ int main(int argc, char* args[])
 	pTimer->Stop();
 
 	//Shutdown "framework"
-	delete pCamera;
 	delete pRenderer;
+	delete pCamera;
 	delete pTimer;
 
 	ShutDown(pWindow);

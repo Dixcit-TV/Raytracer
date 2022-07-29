@@ -12,6 +12,8 @@
 #include <thread>
 #include <vector>
 #include <functional>
+#include <queue>
+#include <mutex>
 
 struct SDL_Window;
 struct SDL_Surface;
@@ -19,10 +21,18 @@ class PerspectiveCamera;
 
 namespace Elite
 {
+	struct TileSettings
+	{
+		uint32_t x, y;
+		uint32_t width, height;
+	};
+
 	class Renderer final
 	{
 	public:
-		Renderer(SDL_Window* pWindow);
+		const uint32_t TILE_SIZE = 8;
+
+		Renderer(SDL_Window* pWindow, PerspectiveCamera* pCamera);
 		~Renderer();
 
 		Renderer(const Renderer&) = delete;
@@ -30,11 +40,18 @@ namespace Elite
 		Renderer& operator=(const Renderer&) = delete;
 		Renderer& operator=(Renderer&&) noexcept = delete;
 
-		void Render(PerspectiveCamera* pCamera);
+		void Render();
 		bool SaveBackbufferToImage() const;
 
 	private:
 		std::vector<std::thread> m_Threads;
+		std::vector<TileSettings> m_TileWorkQueue;
+
+		std::mutex m_TileWorkMutex;
+		std::condition_variable m_Waiter;
+		std::condition_variable m_FrameWaiter;
+		std::atomic_int m_RemainingWork;
+		std::atomic_bool m_ThreadsRunning;
 
 		SDL_Window* m_pWindow = nullptr;
 		SDL_Surface* m_pFrontBuffer = nullptr;
@@ -43,7 +60,9 @@ namespace Elite
 		uint32_t m_Width = 0;
 		uint32_t m_Height = 0;
 
-		void PartialRender(PerspectiveCamera* pCamera, int startRow, int endRow);
+		void InitWorkQueue();
+		void RenderThreadFnc(PerspectiveCamera* pCamera);
+		void PartialRender(PerspectiveCamera* pCamera, const TileSettings& tileSettings);
 	};
 }
 

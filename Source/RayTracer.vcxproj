@@ -47,11 +47,13 @@
   <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <ShowIncludes>false</ShowIncludes>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -66,6 +68,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -97,6 +100,7 @@
     <ClInclude Include="EVector2.h" />
     <ClInclude Include="EVector3.h" />
     <ClInclude Include="EVector4.h" />
+    <ClInclude Include="KDTree.h" />
     <ClInclude Include="LambertCookTorranceMaterial.h" />
     <ClInclude Include="LambertMaterial.h" />
     <ClInclude Include="LambertPhongMaterial.h" />
@@ -122,6 +126,7 @@
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="ERenderer.cpp" />
     <ClCompile Include="ETimer.cpp" />
+    <ClCompile Include="KDTree.cpp" />
     <ClCompile Include="LambertCookTorranceMaterial.cpp" />
     <ClCompile Include="LambertMaterial.cpp" />
     <ClCompile Include="LambertPhongMaterial.cpp" />

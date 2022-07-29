@@ -5,6 +5,14 @@
 
 class Material;
 
+struct Bound
+{
+	Elite::FPoint3 botFrontLeft;
+	Elite::FPoint3 size;
+
+	bool IsValid() const { return size.x > 0.f && size.y > 0.f && size.z > 0.f; }
+};
+
 struct Ray
 {
 	Elite::FPoint3 origin;

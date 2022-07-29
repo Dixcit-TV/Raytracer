@@ -157,6 +157,9 @@
     <ClInclude Include="Utils.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="KDTree.h">
+      <Filter>RayTracer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ERenderer.cpp">
@@ -222,6 +225,9 @@
     </ClCompile>
     <ClCompile Include="SceneManager.cpp">
       <Filter>RayTracer\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="KDTree.cpp">
+      <Filter>RayTracer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

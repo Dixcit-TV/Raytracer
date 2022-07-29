@@ -14,11 +14,21 @@
 #include "ProjectSettings.h"
 #include "SceneManager.h"
 
-Elite::Renderer::Renderer(SDL_Window* pWindow)
+Elite::Renderer::Renderer(SDL_Window* pWindow, PerspectiveCamera* pCamera)
+	: m_Threads{ size_t(std::thread::hardware_concurrency()) * 2 }
+	, m_TileWorkQueue{}
+	, m_TileWorkMutex{}
+	, m_Waiter{}
+	, m_FrameWaiter{}
+	, m_RemainingWork{ 0 }
+	, m_ThreadsRunning{ true }
+	, m_pWindow{ pWindow }
+	, m_pFrontBuffer{ SDL_GetWindowSurface(pWindow) }
+	, m_pBackBuffer{ nullptr }
+	, m_pBackBufferPixels{ nullptr }
+	, m_Width{ 0 }
+	, m_Height{ 0 }
 {
-	//Initialize
-	m_pWindow = pWindow;
-	m_pFrontBuffer = SDL_GetWindowSurface(pWindow);
 	int width, height = 0;
 	SDL_GetWindowSize(pWindow, &width, &height);
 	m_Width = static_cast<uint32_t>(width);
@@ -26,12 +36,17 @@ Elite::Renderer::Renderer(SDL_Window* pWindow)
 	m_pBackBuffer = SDL_CreateRGBSurface(0, m_Width, m_Height, 32, 0, 0, 0, 0);
 	m_pBackBufferPixels = (uint32_t*)m_pBackBuffer->pixels;
 
-	int threadCount{ int(std::thread::hardware_concurrency()) };
-	m_Threads.resize(threadCount);
+	for (uint32_t idx{}; idx < m_Threads.size(); ++idx)
+	{
+		m_Threads[idx] = std::thread(std::bind(&Renderer::RenderThreadFnc, this, pCamera));
+	}
 }
 
 Elite::Renderer::~Renderer()
 {
+	m_ThreadsRunning.store(false);
+	m_Waiter.notify_all();
+
 	for (std::thread& t : m_Threads)
 	{
 		if (t.joinable())
@@ -41,25 +56,21 @@ Elite::Renderer::~Renderer()
 	m_Threads.clear();
 }
 
-void Elite::Renderer::Render(PerspectiveCamera* pCamera)
+void Elite::Renderer::Render()
 {
 	SDL_LockSurface(m_pBackBuffer);
 
-	int threadCount{ int(m_Threads.size()) };
-	int rowPerThreads{ int(m_Height) / threadCount };
-
-	for (int idx{}; idx < threadCount; ++idx)
 	{
-		bool IsLast{ (idx == threadCount - 1) };
-		int endRow{ IsLast * int(m_Height) + !IsLast * ((idx + 1) * rowPerThreads) };
-		m_Threads[idx] = std::thread(std::bind(&Renderer::PartialRender, this, pCamera, idx * rowPerThreads, endRow));
+		std::lock_guard lck{ m_TileWorkMutex };
+		InitWorkQueue();
+		m_RemainingWork.store(int(m_TileWorkQueue.size()));
 	}
+	m_Waiter.notify_all();
 
-	for (std::thread& t : m_Threads)
-	{
-		if (t.joinable())
-			t.join();
-	}
+	std::unique_lock lck{ m_TileWorkMutex };
+	m_FrameWaiter.wait(lck, [this]() { return m_RemainingWork == 0; });
+
+	//while (m_RemainingWork);
 
 	SDL_UnlockSurface(m_pBackBuffer);
 	SDL_BlitSurface(m_pBackBuffer, 0, m_pFrontBuffer, 0);
@@ -71,7 +82,55 @@ bool Elite::Renderer::SaveBackbufferToImage() const
 	return SDL_SaveBMP(m_pBackBuffer, "BackbufferRender.bmp");
 }
 
-void Elite::Renderer::PartialRender(PerspectiveCamera* pCamera, int startRow, int endRow)
+void Elite::Renderer::InitWorkQueue()
+{
+	float tileXCountF{ float(m_Width) / TILE_SIZE };
+	[[maybe_unused]] float decimalX{ tileXCountF - int(tileXCountF) };
+
+	float tileYCountF{ float(m_Height) / TILE_SIZE };
+	[[maybe_unused]] float decimaly{ tileYCountF - int(tileYCountF) };
+
+	uint32_t tileXCount{ uint32_t(tileXCountF) };
+	uint32_t tileYCount{ uint32_t(tileYCountF) };
+	//if (decimal < 0.5f)
+
+	m_TileWorkQueue.resize(size_t(tileXCount) * tileYCount);
+
+	for (uint32_t y{ 0 }; y < tileYCount; ++y)
+		for (uint32_t x{ 0 }; x < tileXCount; ++x)
+		{
+			TileSettings& ts{ m_TileWorkQueue[size_t(tileXCount) * y + x] };
+			ts.x = x * TILE_SIZE;
+			ts.y = y * TILE_SIZE;
+			ts.width = TILE_SIZE;
+			ts.height = TILE_SIZE;
+		}
+}
+
+void Elite::Renderer::RenderThreadFnc(PerspectiveCamera* pCamera)
+{
+	while (m_ThreadsRunning)
+	{
+		TileSettings ts{};
+		std::unique_lock lck{ m_TileWorkMutex };
+		m_Waiter.wait(lck, [this]() { return m_TileWorkQueue.size() > 0 || !m_ThreadsRunning; });
+		if (m_TileWorkQueue.size() > 0)
+		{
+			ts = m_TileWorkQueue.back();
+			m_TileWorkQueue.pop_back();
+
+			lck.unlock();
+
+			PartialRender(pCamera, ts);
+
+			lck.lock();
+			--m_RemainingWork;
+			m_FrameWaiter.notify_one();
+		}
+	}
+}
+
+void Elite::Renderer::PartialRender(PerspectiveCamera* pCamera, const TileSettings& tileSettings)
 {
 	bool hit{ false };
 
@@ -82,19 +141,16 @@ void Elite::Renderer::PartialRender(PerspectiveCamera* pCamera, int startRow, in
 	bool hardShadows{ pProjectSettings->IsHardShadowEnabled() };
 	LightRenderMode lightMode{ pProjectSettings->GetLightMode() };
 	//Loop over all the pixels
-	for (uint32_t r = startRow; r < uint32_t(endRow); ++r)
+	for (uint32_t r = tileSettings.y; r < tileSettings.y + tileSettings.height; ++r)
 	{
-		for (uint32_t c = 0; c < m_Width; ++c)
+		for (uint32_t c = tileSettings.x; c < tileSettings.x + tileSettings.width; ++c)
 		{
 			hit = false;
 			Elite::RGBColor pixelColor{};
 			HitRecord hitRecord{ pCamera->CastRay(Elite::IPoint2(c, r), m_Width, m_Height) };
 
 			for (Object* pObject : pObjects)
-			{
-				if (pObject->HitCheck(hitRecord))
-					hit = true;
-			}
+				hit |= pObject->HitCheck(hitRecord);
 
 			if (hit)
 			{

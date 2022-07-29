@@ -1,5 +1,6 @@
 #pragma once
 #include "EMath.h"
+#include "Structs.h"
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -44,6 +45,74 @@ namespace Utils
 		std::cout << "\n\n";
 	}
 };
+
+namespace Math
+{
+	template<typename T>
+	bool RayTriangleInterestionTest(HitRecord& hitRecord, const Elite::Point<3, T>& p0, const Elite::Point<3, T>& p1, const Elite::Point<3, T>& p2, CullMode cullMode, bool isShadowTest = false)
+	{
+		//Möller-Trumblore algorithm: 
+		//http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/code/raytri_tam.pdf
+		//https://www.youtube.com/watch?v=fK1RPmF_zjQ
+
+		Elite::FVector3 edge01, edge02, V0ToRay, rayDir_x_edge02, V0ToRay_x_edge01;
+		float det, inv_det, u, v, t;
+		const float epsilon{ 0.0001f };
+
+		edge01 = p1 - p0;
+		edge02 = p2 - p0;
+		rayDir_x_edge02 = Elite::Cross(hitRecord.ray.direction, edge02);
+		det = Elite::Dot(rayDir_x_edge02, edge01);
+
+		//Allow Cull mode handling
+		switch (cullMode)
+		{
+		case CullMode::BACKFACE:
+			if ((!isShadowTest && det < epsilon) || (isShadowTest && det > -epsilon))
+				return false;
+			break;
+		case CullMode::FRONTFACE:
+			if ((isShadowTest && det < epsilon) || (!isShadowTest && det > -epsilon))
+				return false;
+			break;
+		default:
+			if (abs(det) < epsilon)
+				return false;
+			break;
+		}
+
+		inv_det = 1 / det;
+		V0ToRay = hitRecord.ray.origin - p0;
+		u = Elite::Dot(rayDir_x_edge02, V0ToRay) * inv_det;
+
+		//Check validity of first baricentric coordinate, discard triangle if invalid
+		if (u < 0.f || u > 1.f)
+			return false;
+
+		V0ToRay_x_edge01 = Elite::Cross(V0ToRay, edge01);
+		v = Elite::Dot(V0ToRay_x_edge01, hitRecord.ray.direction) * inv_det;
+
+		//Check validity of second baricentric coordinate, discard triangle if invalid
+		if (v < 0.f || u + v > 1.f)
+			return false;
+
+		t = Elite::Dot(V0ToRay_x_edge01, edge02) * inv_det;
+
+		//Check if the hit point is neither too far or if no closer hit point was already found
+		//discard triangle if it's the case
+		if (t < hitRecord.ray.minT || t > hitRecord.t)
+			return false;
+
+		if (isShadowTest)
+			return true;
+
+		hitRecord.t = t;
+		hitRecord.normal = Elite::GetNormalized(Elite::Cross(edge01, edge02));
+		hitRecord.normal *= (cullMode == CullMode::FRONTFACE) * -1.f + (cullMode != CullMode::FRONTFACE) * 1;
+
+		return true;
+	}
+}
 
 namespace ObjReader
 {
