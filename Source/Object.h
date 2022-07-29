@@ -12,6 +12,8 @@ public:
 	virtual void Update(float deltaT) = 0;
 	virtual bool HitCheck(HitRecord& hitRecord, bool isShadowTest = false) const = 0;
 
+	const Material* GetMaterial() const { return m_pMaterial; }
+
 protected:
 	Object(const Elite::FMatrix4& transform, Material* pMaterial);
 

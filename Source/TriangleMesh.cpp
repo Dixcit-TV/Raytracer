@@ -1,10 +1,13 @@
 #include "TriangleMesh.h"
 #include "Utils.h"
+#include "KDTree.h"
 
 TriangleMesh::TriangleMesh(const std::string& objPath, const Elite::FMatrix4& transform, Material* pMaterial, bool isStatic, CullMode cullMode)
 	: Object(transform, pMaterial)
+	, m_Bound()
 	, m_vBuffer()
 	, m_iBuffer()
+	, m_pPartitioning(nullptr)
 	, m_CullMode(cullMode)
 	, m_IsStatic(isStatic)
 {
@@ -17,10 +20,56 @@ TriangleMesh::TriangleMesh(const std::string& objPath, const Elite::FMatrix4& tr
 			vertex = Elite::FPoint3(m_Transform * Elite::FPoint4(vertex));
 		}
 	}
+
+	Elite::FPoint3 min{ FLT_MAX, FLT_MAX, FLT_MAX }, max{ -FLT_MAX, -FLT_MAX, -FLT_MAX };
+
+	for (Elite::FPoint3& vertex : m_vBuffer)
+	{
+		for (uint8_t axis{ 0 }; axis < 3; ++axis)
+		{
+			min[axis] = std::min(min[axis], vertex[axis]);
+			max[axis] = std::max(max[axis], vertex[axis]);
+		}
+	}
+
+	m_Bound.botFrontLeft = min;
+	m_Bound.size = max - Elite::FVector3(min);
+}
+
+TriangleMesh::~TriangleMesh()
+{
+	if (m_pPartitioning)
+		delete m_pPartitioning;
+}
+
+void TriangleMesh::SetPartition(bool usePartition)
+{
+	if (usePartition)
+	{
+		if (m_pPartitioning)
+		{
+			if (m_pPartitioning->IsInitialized())
+				return;
+			else
+				delete m_pPartitioning;
+		}
+
+		m_pPartitioning = new KDTree(60, 4);
+		m_pPartitioning->Build(this);
+	}
+	else
+	{
+		if (m_pPartitioning)
+			delete m_pPartitioning;
+	}
 }
 
 bool TriangleMesh::HitCheck(HitRecord& hitRecord, bool isShadowTest) const
 {
+	if (m_pPartitioning && m_pPartitioning->IsInitialized())
+		return m_pPartitioning->IntersectionTest(this, hitRecord, isShadowTest);
+
+	
 	bool result{ false };
 	const size_t idxCount{ m_iBuffer.size() };
 	for (size_t idx{}; idx < idxCount; idx += 3)

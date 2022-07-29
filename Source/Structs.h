@@ -30,7 +30,7 @@ struct HitRecord
 	explicit HitRecord(const Ray& ray);
 
 	Ray ray;
-	Material* pMaterial;
+	const Material* pMaterial;
 	Elite::FVector3 normal;
 	float t;
 };
