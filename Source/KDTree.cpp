@@ -209,8 +209,9 @@ bool KDTree::IntersectionNodeTest(const TriangleMesh* tMesh, HitRecord& hRecord,
 		bool result = false;
 		for (int triIdx : currentNode.pCandidates)
 		{
-			int vIdx{ triIdx * 3 };
-			if (Math::RayTriangleInterestionTest(hRecord, tMesh->GetVertex(vIdx), tMesh->GetVertex(vIdx + 1), tMesh->GetVertex(vIdx + 2), tMesh->GetCullMode(), isShadowTest))
+			Elite::FPoint3 vertices[3]{};
+			tMesh->GetTriangle(size_t(triIdx) * 3, vertices);
+			if (Math::RayTriangleInterestionTest(hRecord, vertices[0], vertices[1], vertices[2], tMesh->GetCullMode(), isShadowTest))
 			{
 				result = true;
 				hRecord.pMaterial = tMesh->GetMaterial();

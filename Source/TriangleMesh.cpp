@@ -74,16 +74,10 @@ bool TriangleMesh::HitCheck(HitRecord& hitRecord, bool isShadowTest) const
 	const size_t idxCount{ m_iBuffer.size() };
 	for (size_t idx{}; idx < idxCount; idx += 3)
 	{
-		//Dynamic meshes: Calculate vertex position each frame
-		//Static meshes: Use pre-calculated vertex position
-		int vIdx0{ m_iBuffer[idx] };
-		int vIdx1{ m_iBuffer[idx + 1] };
-		int vIdx2{ m_iBuffer[idx + 2] };
-		Elite::FPoint3 worldV0 = m_IsStatic ? m_vBuffer[vIdx0] : Elite::FPoint3(m_Transform * Elite::FPoint4(m_vBuffer[vIdx0]));
-		Elite::FPoint3 worldV1 = m_IsStatic ? m_vBuffer[vIdx1] : Elite::FPoint3(m_Transform * Elite::FPoint4(m_vBuffer[vIdx1]));
-		Elite::FPoint3 worldV2 = m_IsStatic ? m_vBuffer[vIdx2] : Elite::FPoint3(m_Transform * Elite::FPoint4(m_vBuffer[vIdx2]));
+		Elite::FPoint3 vertices[3]{};
+		GetTriangle(idx, vertices);
 
-		if (Math::RayTriangleInterestionTest(hitRecord, worldV0, worldV1, worldV2, m_CullMode, isShadowTest))
+		if (Math::RayTriangleInterestionTest(hitRecord, vertices[0], vertices[1], vertices[2], m_CullMode, isShadowTest))
 		{
 			result = true;
 			hitRecord.pMaterial = m_pMaterial;

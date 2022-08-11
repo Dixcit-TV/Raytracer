@@ -1,3 +1,5 @@
+#include <iostream>
+
 //External includes
 #include "SDL.h"
 #include "SDL_surface.h"
@@ -14,9 +16,9 @@
 #include "ProjectSettings.h"
 #include "SceneManager.h"
 
-Elite::Renderer::Renderer(SDL_Window* pWindow, PerspectiveCamera* pCamera)
-	: m_Threads{ size_t(std::thread::hardware_concurrency()) * 2 }
-	, m_TileWorkQueue{}
+Elite::Renderer::Renderer(SDL_Window* pWindow)
+	: m_Threads( size_t(std::thread::hardware_concurrency()) * 2 )
+	, m_WorkQueue{}
 	, m_TileWorkMutex{}
 	, m_Waiter{}
 	, m_FrameWaiter{}
@@ -38,7 +40,7 @@ Elite::Renderer::Renderer(SDL_Window* pWindow, PerspectiveCamera* pCamera)
 
 	for (uint32_t idx{}; idx < m_Threads.size(); ++idx)
 	{
-		m_Threads[idx] = std::thread(std::bind(&Renderer::RenderThreadFnc, this, pCamera));
+		m_Threads[idx] = std::thread(std::bind(&Renderer::RenderThreadFnc, this));
 	}
 }
 
@@ -56,21 +58,19 @@ Elite::Renderer::~Renderer()
 	m_Threads.clear();
 }
 
-void Elite::Renderer::Render()
+void Elite::Renderer::Render(PerspectiveCamera* pCamera)
 {
 	SDL_LockSurface(m_pBackBuffer);
 
 	{
 		std::lock_guard lck{ m_TileWorkMutex };
-		InitWorkQueue();
-		m_RemainingWork.store(int(m_TileWorkQueue.size()));
+		InitWorkQueue(pCamera);
+		m_RemainingWork.store(int(m_WorkQueue.size()));
 	}
 	m_Waiter.notify_all();
 
 	std::unique_lock lck{ m_TileWorkMutex };
 	m_FrameWaiter.wait(lck, [this]() { return m_RemainingWork == 0; });
-
-	//while (m_RemainingWork);
 
 	SDL_UnlockSurface(m_pBackBuffer);
 	SDL_BlitSurface(m_pBackBuffer, 0, m_pFrontBuffer, 0);
@@ -82,7 +82,7 @@ bool Elite::Renderer::SaveBackbufferToImage() const
 	return SDL_SaveBMP(m_pBackBuffer, "BackbufferRender.bmp");
 }
 
-void Elite::Renderer::InitWorkQueue()
+void Elite::Renderer::InitWorkQueue(PerspectiveCamera* pCamera)
 {
 	float tileXCountF{ float(m_Width) / TILE_SIZE };
 	[[maybe_unused]] float decimalX{ tileXCountF - int(tileXCountF) };
@@ -94,34 +94,35 @@ void Elite::Renderer::InitWorkQueue()
 	uint32_t tileYCount{ uint32_t(tileYCountF) };
 	//if (decimal < 0.5f)
 
-	m_TileWorkQueue.resize(size_t(tileXCount) * tileYCount);
+	m_WorkQueue.reserve(size_t(tileXCount) * tileYCount);
 
 	for (uint32_t y{ 0 }; y < tileYCount; ++y)
 		for (uint32_t x{ 0 }; x < tileXCount; ++x)
 		{
-			TileSettings& ts{ m_TileWorkQueue[size_t(tileXCount) * y + x] };
+			TileSettings ts{ };
 			ts.x = x * TILE_SIZE;
 			ts.y = y * TILE_SIZE;
 			ts.width = TILE_SIZE;
 			ts.height = TILE_SIZE;
+
+			m_WorkQueue.push_back(std::bind(&Renderer::PartialRender, this, pCamera, ts));
 		}
 }
 
-void Elite::Renderer::RenderThreadFnc(PerspectiveCamera* pCamera)
+void Elite::Renderer::RenderThreadFnc()
 {
 	while (m_ThreadsRunning)
 	{
-		TileSettings ts{};
 		std::unique_lock lck{ m_TileWorkMutex };
-		m_Waiter.wait(lck, [this]() { return m_TileWorkQueue.size() > 0 || !m_ThreadsRunning; });
-		if (m_TileWorkQueue.size() > 0)
+		m_Waiter.wait(lck, [this]() { return m_WorkQueue.size() > 0 || !m_ThreadsRunning; });
+		if (m_WorkQueue.size() > 0)
 		{
-			ts = m_TileWorkQueue.back();
-			m_TileWorkQueue.pop_back();
+			std::function<void()> work{ m_WorkQueue.back() };
+			m_WorkQueue.pop_back();
 
 			lck.unlock();
 
-			PartialRender(pCamera, ts);
+			work();
 
 			lck.lock();
 			--m_RemainingWork;
@@ -130,7 +131,7 @@ void Elite::Renderer::RenderThreadFnc(PerspectiveCamera* pCamera)
 	}
 }
 
-void Elite::Renderer::PartialRender(PerspectiveCamera* pCamera, const TileSettings& tileSettings)
+void Elite::Renderer::PartialRender(PerspectiveCamera* pCamera, TileSettings tileSettings)
 {
 	bool hit{ false };
 
@@ -152,66 +153,140 @@ void Elite::Renderer::PartialRender(PerspectiveCamera* pCamera, const TileSettin
 			for (Object* pObject : pObjects)
 				hit |= pObject->HitCheck(hitRecord);
 
-			if (hit)
+			if (!hit)
 			{
-				Elite::FPoint3 hitPoint{ hitRecord.ray.GetPoint(hitRecord.t) };
-				for (Light* pLight : pLights)
-				{
-					if (pLight->IsOn())
-					{
-						bool hasLight{ true };
-						float rayTMax{ FLT_MAX };
-						Elite::FVector3 hPointLightDir{ -pLight->GetDirection(hitPoint) };
-						switch (pLight->GetType())
-						{
-							case LightType::POINTLIGHT:
-								rayTMax = Magnitude(hPointLightDir);
-								hPointLightDir /= rayTMax;
-								break;
-							case LightType::DIRECTIONAL:
-								break;
-						}
+				m_pBackBufferPixels[c + (r * m_Width)] = GetSDL_ARGBColor(pixelColor);
+				continue;
+			}
 
-						if (hardShadows)
+			Elite::FPoint3 hitPoint{ hitRecord.ray.GetPoint(hitRecord.t) };
+			for (Light* pLight : pLights)
+			{
+				if (pLight->IsOn())
+				{
+					bool hasLight{ true };
+					float rayTMax{ FLT_MAX };
+					Elite::FVector3 hPointLightDir{ -pLight->GetDirection(hitPoint) };
+					switch (pLight->GetType())
+					{
+						case LightType::POINTLIGHT:
+							rayTMax = Magnitude(hPointLightDir);
+							hPointLightDir /= rayTMax;
+							break;
+						case LightType::DIRECTIONAL:
+							break;
+					}
+
+					if (hardShadows)
+					{
+						HitRecord shadowHitRecord{ Ray(hitPoint, hPointLightDir, 0.001f, rayTMax) };
+						for (Object* pObject : pObjects)
 						{
-							HitRecord shadowHitRecord{ Ray(hitPoint, hPointLightDir, 0.001f, rayTMax) };
-							for (Object* pObject : pObjects)
+							if (pObject->HitCheck(shadowHitRecord, true))
 							{
-								if (pObject->HitCheck(shadowHitRecord, true))
-								{
-									hasLight = false;
-									break;
-								}
+								hasLight = false;
+								break;
 							}
 						}
+					}
 
-						if (hasLight)
+					if (hasLight)
+					{
+						float dot{ Dot(hitRecord.normal, hPointLightDir) };
+
+						if (dot > 0.f)
 						{
-							float dot{ Dot(hitRecord.normal, hPointLightDir) };
-
-							if (dot > 0.f)
+							switch (lightMode)
 							{
-								switch (lightMode)
-								{
-								case LightRenderMode::ALL:
-									pixelColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir) * pLight->CalculateIllumination(hitPoint) * dot;
-									break;
-								case LightRenderMode::BRDFONLY:
-									pixelColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir) * dot;
-									break;
-								case LightRenderMode::LIGHTSOURCETONLY:
-									pixelColor += pLight->CalculateIllumination(hitPoint) * dot;
-									break;
-								}
+							case LightRenderMode::ALL:
+								pixelColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir) * pLight->CalculateIllumination(hitPoint) * dot;
+								break;
+							case LightRenderMode::BRDFONLY:
+								pixelColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir) * dot;
+								break;
+							case LightRenderMode::LIGHTSOURCETONLY:
+								pixelColor += pLight->CalculateIllumination(hitPoint) * dot;
+								break;
 							}
 						}
 					}
 				}
-				pixelColor.MaxToOne();
 			}
+			pixelColor.MaxToOne();
 
 			//Fill the pixels - pixel access demo
 			m_pBackBufferPixels[c + (r * m_Width)] = GetSDL_ARGBColor(pixelColor);
 		}
 	}
 }
+
+//void Elite::Renderer::Shading(HitRecord hitRecord, size_t pixel)
+//{
+//	Elite::RGBColor pixelColor{};
+//
+//	Elite::FPoint3 hitPoint{ hitRecord.ray.GetPoint(hitRecord.t) };
+//
+//	ProjectSettings* pProjectSettings{ ProjectSettings::GetInstance() };
+//	bool hardShadows{ pProjectSettings->IsHardShadowEnabled() };
+//	LightRenderMode lightMode{ pProjectSettings->GetLightMode() };
+//
+//	SceneGraph& currentScene{ SceneManager::GetInstance()->GetActiveScene() };
+//	const std::vector<Object*>& pObjects{ currentScene.GetObjects() };
+//	const std::vector<Light*>& pLights{ currentScene.GetLights() };
+//	for (Light* pLight : pLights)
+//	{
+//		if (pLight->IsOn())
+//		{
+//			bool hasLight{ true };
+//			float rayTMax{ FLT_MAX };
+//			Elite::FVector3 hPointLightDir{ -pLight->GetDirection(hitPoint) };
+//			switch (pLight->GetType())
+//			{
+//			case LightType::POINTLIGHT:
+//				rayTMax = Magnitude(hPointLightDir);
+//				hPointLightDir /= rayTMax;
+//				break;
+//			case LightType::DIRECTIONAL:
+//				break;
+//			}
+//
+//			if (hardShadows)
+//			{
+//				HitRecord shadowHitRecord{ Ray(hitPoint, hPointLightDir, 0.001f, rayTMax) };
+//				for (Object* pObject : pObjects)
+//				{
+//					if (pObject->HitCheck(shadowHitRecord, true))
+//					{
+//						hasLight = false;
+//						break;
+//					}
+//				}
+//			}
+//
+//			if (hasLight)
+//			{
+//				float dot{ Dot(hitRecord.normal, hPointLightDir) };
+//
+//				if (dot > 0.f)
+//				{
+//					switch (lightMode)
+//					{
+//					case LightRenderMode::ALL:
+//						pixelColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir) * pLight->CalculateIllumination(hitPoint) * dot;
+//						break;
+//					case LightRenderMode::BRDFONLY:
+//						pixelColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir) * dot;
+//						break;
+//					case LightRenderMode::LIGHTSOURCETONLY:
+//						pixelColor += pLight->CalculateIllumination(hitPoint) * dot;
+//						break;
+//					}
+//				}
+//			}
+//		}
+//	}
+//	pixelColor.MaxToOne();
+//
+//	//Fill the pixels - pixel access demo
+//	m_pBackBufferPixels[pixel] = GetSDL_ARGBColor(pixelColor);
+//}

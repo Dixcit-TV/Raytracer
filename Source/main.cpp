@@ -86,9 +86,9 @@ void InitScene2()
 	scene2.AddObject(trMesh);
 	trMesh->SetPartition(true);
 
-	trMesh = new TriangleMesh("Resources/lowpoly_bunny.obj", Elite::MakeTranslation(Elite::FVector3(0.f, 5.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Gold"), true);
-	scene2.AddObject(trMesh);
-	trMesh->SetPartition(true);
+	//trMesh = new TriangleMesh("Resources/lowpoly_bunny.obj", Elite::MakeTranslation(Elite::FVector3(0.f, 5.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Gold"), true);
+	//scene2.AddObject(trMesh);
+	//trMesh->SetPartition(true);
 
 	//scene2.AddObject(new Plane(Elite::MakeTranslation(Elite::FVector3(0.f, 0.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
 	//scene2.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationX(float(E_PI_DIV_2)), Elite::FVector3(0.f, 0.f, -6.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
@@ -138,7 +138,7 @@ int main(int argc, char* args[])
 	//Initialize "framework"
 	Elite::Timer* pTimer = new Elite::Timer();
 	PerspectiveCamera* pCamera = new PerspectiveCamera(Elite::FPoint3(0.f, 3.f, 10.f), Elite::FVector3(0.f, 0.f, 1.f), float(width) / height, 45.f);
-	Elite::Renderer* pRenderer = new Elite::Renderer(pWindow, pCamera);
+	Elite::Renderer* pRenderer = new Elite::Renderer(pWindow);
 	InitMaterials();
 	InitScene1();
 	InitScene2();
@@ -176,7 +176,7 @@ int main(int argc, char* args[])
 		SceneManager::GetInstance()->GetActiveScene().Update(pTimer->GetElapsed());
 
 		//--------- Render ---------
-		pRenderer->Render();
+		pRenderer->Render(pCamera);
 
 		//--------- Timer ---------
 		pTimer->Update();

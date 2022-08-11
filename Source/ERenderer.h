@@ -17,6 +17,7 @@
 
 struct SDL_Window;
 struct SDL_Surface;
+struct HitRecord;
 class PerspectiveCamera;
 
 namespace Elite
@@ -32,7 +33,7 @@ namespace Elite
 	public:
 		const uint32_t TILE_SIZE = 8;
 
-		Renderer(SDL_Window* pWindow, PerspectiveCamera* pCamera);
+		Renderer(SDL_Window* pWindow);
 		~Renderer();
 
 		Renderer(const Renderer&) = delete;
@@ -40,12 +41,12 @@ namespace Elite
 		Renderer& operator=(const Renderer&) = delete;
 		Renderer& operator=(Renderer&&) noexcept = delete;
 
-		void Render();
+		void Render(PerspectiveCamera* pCamera);
 		bool SaveBackbufferToImage() const;
 
 	private:
 		std::vector<std::thread> m_Threads;
-		std::vector<TileSettings> m_TileWorkQueue;
+		std::vector<std::function<void()>> m_WorkQueue;
 
 		std::mutex m_TileWorkMutex;
 		std::condition_variable m_Waiter;
@@ -60,9 +61,10 @@ namespace Elite
 		uint32_t m_Width = 0;
 		uint32_t m_Height = 0;
 
-		void InitWorkQueue();
-		void RenderThreadFnc(PerspectiveCamera* pCamera);
-		void PartialRender(PerspectiveCamera* pCamera, const TileSettings& tileSettings);
+		void InitWorkQueue(PerspectiveCamera* pCamera);
+		void RenderThreadFnc();
+		void PartialRender(PerspectiveCamera* pCamera, TileSettings tileSettings);
+		//void Shading(HitRecord hitRecord, size_t pixel);
 	};
 }
 
