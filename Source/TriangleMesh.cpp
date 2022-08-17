@@ -59,7 +59,8 @@ void TriangleMesh::SetPartition(bool usePartition)
 				delete m_pPartitioning;
 		}
 
-		uint32_t maxDepth{ 5/*8u + static_cast<uint32_t>(1.3f * std::log2(m_iBuffer.size() / 3))*/ };
+		// Physically Base Rendering: From Theory to Implementation =======> below equation yields a fairly good estimation of max depth for various scenes
+		uint32_t maxDepth{ 8u + static_cast<uint32_t>(1.3f * std::log2(GetTriangleCount())) };
 		m_pPartitioning = new KDTree(maxDepth, 4);
 		m_pPartitioning->Build(this);
 	}
