@@ -49,7 +49,7 @@ namespace Utils
 namespace Math
 {
 	template<typename T>
-	bool RayTriangleInterestionTest(HitRecord& hitRecord, const Elite::Point<3, T>& p0, const Elite::Point<3, T>& p1, const Elite::Point<3, T>& p2, CullMode cullMode, bool isShadowTest = false)
+	bool RayTriangleIntersectionTest(HitRecord& hitRecord, const Elite::Point<3, T>& p0, const Elite::Point<3, T>& p1, const Elite::Point<3, T>& p2, CullMode cullMode, bool isShadowTest = false)
 	{
 		//Möller-Trumblore algorithm: 
 		//http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/code/raytri_tam.pdf
@@ -107,8 +107,8 @@ namespace Math
 			return true;
 
 		hitRecord.t = t;
-		hitRecord.normal = Elite::GetNormalized(Elite::Cross(edge01, edge02));
-		hitRecord.normal *= (cullMode == CullMode::FRONTFACE) * -1.f + (cullMode != CullMode::FRONTFACE) * 1;
+		hitRecord.normal = Elite::GetNormalized(Elite::Cross(edge01, edge02)) * ((cullMode == CullMode::FRONTFACE) * -1.f + (cullMode != CullMode::FRONTFACE) * 1);
+		hitRecord.coordinates = Elite::FPoint3(v, v , 1 - u - v);
 
 		return true;
 	}

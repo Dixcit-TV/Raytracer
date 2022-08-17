@@ -14,11 +14,14 @@ public:
 
 	void Update(float) override {}
 	bool HitCheck(HitRecord& hitRecord, bool isShadowTest = false) const override;
+	bool TraceTriangle(size_t triIDx, HitRecord& hitRecord, bool isShadowTest = false) const;
 
-	void GetTriangle(size_t indexId, Elite::FPoint3 vertices[3]) const
+	void setTriangleColor(size_t triId, const Elite::RGBColor& newColor){ m_tColor[triId] = newColor; }
+
+	void GetTriangle(size_t triId, Elite::FPoint3 vertices[3]) const
 	{ 
 		Elite::IPoint3 indices{  };
-		memcpy(&indices, &m_iBuffer[indexId], 3 * sizeof(int));
+		memcpy(&indices, &m_iBuffer[triId * 3], 3 * sizeof(int));
 		Elite::FPoint3 v[3]{ m_vBuffer[indices.x], m_vBuffer[indices.y], m_vBuffer[indices.z] };
 
 		vertices[0] = m_IsStatic ? v[0] : Elite::FPoint3(m_Transform * Elite::FPoint4(v[0]));
@@ -38,6 +41,8 @@ public:
 private:
 	Bound m_Bound;
 	std::vector<Elite::FPoint3> m_vBuffer;
+	std::vector<Elite::RGBColor> m_vColor;
+	std::vector<Elite::RGBColor> m_tColor;
 	std::vector<int> m_iBuffer;
 	KDTree* m_pPartitioning;
 	CullMode m_CullMode;

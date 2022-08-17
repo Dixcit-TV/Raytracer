@@ -2,6 +2,9 @@
 #include "SDL.h"
 #include "Utils.h"
 #include "Quaternion.h"
+#include "SceneGraph.h"
+#include "SceneManager.h"
+#include "Object.h"
 
 //#define DEBUG
 
@@ -20,7 +23,7 @@ PerspectiveCamera::PerspectiveCamera(const Elite::FPoint3& position, const Elite
 		, 0.f, 0.f, 0.f, 1.f);
 }
 
-Ray PerspectiveCamera::CastRay(const Elite::IPoint2& pixel, uint32_t windWidth, uint32_t winHeight)
+Ray PerspectiveCamera::CastRay(const Elite::IPoint2& pixel, uint32_t windWidth, uint32_t winHeight) const
 {
 	float xScreenSpace{ ((pixel.x + .5f) * 2.f / windWidth - 1) * m_AspectRatio * m_FOV };
 	float yScreenSpace{ (-(pixel.y + .5f) * 2.f / winHeight + 1) * m_FOV };
@@ -44,6 +47,7 @@ void PerspectiveCamera::Update(float deltaT)
 	const Uint8* pScanCode{ SDL_GetKeyboardState(NULL) };
 	bool mouseLeft{ bool(mouseRelativeSate & SDL_BUTTON(SDL_BUTTON_LEFT)) };
 	bool mouseRight{ bool(mouseRelativeSate & SDL_BUTTON(SDL_BUTTON_RIGHT)) };
+	[[maybe_unused]] bool mouseMiddle{ bool(mouseRelativeSate & SDL_BUTTON(SDL_BUTTON_MIDDLE)) };
 
 	if (pScanCode[SDL_SCANCODE_I] || pScanCode[SDL_SCANCODE_O])
 	{
@@ -136,3 +140,15 @@ void PerspectiveCamera::RotateCamera(float roll, float pitch, float)
 
 	Rotate(m_LookAtMatrix, Quaternion<float>(pitchRad, Utils::GetWorldY<float>()) * Quaternion<float>(rollRad, Elite::FVector3(m_LookAtMatrix[0])));
 }
+//
+//void PerspectiveCamera::RayDebugPicking(const Elite::FPoint2& mousePos, uint32_t windWidth, uint32_t winHeight) const
+//{
+//	SceneGraph& currentScene{ SceneManager::GetInstance()->GetActiveScene() };
+//	const std::vector<Object*>& pObjects{ currentScene.GetObjects() };
+//
+//	Elite::RGBColor pixelColor{};
+//	HitRecord hitRecord{ CastRay(Elite::IPoint2(mousePos.x, mousePos.y), windWidth, winHeight) };
+//
+//	for (Object* pObject : pObjects)
+//		pObject->DebugHitCheck(hitRecord, false);
+//}

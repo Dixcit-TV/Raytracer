@@ -52,4 +52,15 @@ bool Sphere::HitCheck(HitRecord& hitRecord, bool isShadowTest) const
 	hitRecord.normal = centerToHitPoint;
 
 	return true;
+
+	//Elite::FVector3 rayToCenter{ centerPos - hitRecord.ray.origin };
+	//float dist = Dot(rayToCenter, hitRecord.ray.direction);
+	//Elite::FPoint3 closestPointCenter{ hitRecord.ray.origin + dist * hitRecord.ray.direction };
+	//float distFromCenter2{ Elite::SqrDistance(closestPointCenter, centerPos) };
+	//float radius2{ m_Radius * m_Radius };
+
+	//if (distFromCenter2 > radius2)
+	//	return false;
+
+	//float intersectOffset{ sqrtf(radius2 - distFromCenter2) };
 }

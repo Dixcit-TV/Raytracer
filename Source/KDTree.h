@@ -12,8 +12,8 @@ enum class SplitType : uint8_t
 
 struct TreeNode
 {
-	uint32_t LChild{};
-	std::vector<int> pCandidates{};
+	uint32_t rChild{};
+	std::vector<uint32_t> pCandidates{};
 	float splitValue{};
 	uint8_t axis{};
 	bool isLeaf{};
@@ -45,6 +45,9 @@ public:
 	bool IsInitialized() const { return m_IsIntialized; }
 	bool IntersectionTest(const TriangleMesh* tMesh, HitRecord& hRecord, bool isShadowTest) const;
 
+	constexpr static float IntersectCost{ 80.f };
+	constexpr static float TraversalCost{ 1.f };
+
 private:
 	static const uint8_t kCount = 3;
 
@@ -53,11 +56,11 @@ private:
 	uint32_t m_MinTriCount;
 	bool m_IsIntialized;
 
-	void Subdivide(const TriangleMesh* tMesh, uint32_t currentNodeIdx, const Bound& nodeBounds, std::vector<int>& tris, uint32_t depth);
-	std::vector<Split> GetSplitCandidates(const TriangleMesh* tMesh, const std::vector<int>& tris, uint8_t axis) const;
+	void Subdivide(const TriangleMesh* tMesh, uint32_t currentNodeIdx, const Bound& nodeBounds, std::vector<uint32_t>& tris, uint32_t depth);
+	std::vector<Split> GetSplitCandidates(const TriangleMesh* tMesh, const std::vector<uint32_t>& tris, uint8_t axis) const;
 	BestSplit GetBestSplit(const std::vector<Split>& splits, const Bound& nodeBounds, uint8_t axis, uint32_t triangleCount, uint32_t depth) const;
 
-	bool IntersectionNodeTest(const TriangleMesh* tMesh, HitRecord& hRecord, const TreeNode& currentNode, float tMin, float tMax, bool isShadowTest) const;
+	bool IntersectionNodeTest(const TriangleMesh* tMesh, HitRecord& hRecord, uint32_t currentNodeIdx, float tMin, float tMax, bool isShadowTest) const;
 
 	bool RayBoundsIntersection(const Ray& ray, const Bound& bound, float& tMin, float& tMax) const;
 };

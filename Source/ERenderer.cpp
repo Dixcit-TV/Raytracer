@@ -16,8 +16,9 @@
 #include "ProjectSettings.h"
 #include "SceneManager.h"
 
-Elite::Renderer::Renderer(SDL_Window* pWindow)
-	: m_Threads( size_t(std::thread::hardware_concurrency()) * 2 )
+Elite::Renderer::Renderer(SDL_Window* pWindow, RenderMode renderMode, size_t threadCount)
+	: m_RenderFunction{}
+	, m_Threads{}
 	, m_WorkQueue{}
 	, m_TileWorkMutex{}
 	, m_Waiter{}
@@ -30,6 +31,7 @@ Elite::Renderer::Renderer(SDL_Window* pWindow)
 	, m_pBackBufferPixels{ nullptr }
 	, m_Width{ 0 }
 	, m_Height{ 0 }
+	, m_RenderMode{ renderMode }
 {
 	int width, height = 0;
 	SDL_GetWindowSize(pWindow, &width, &height);
@@ -38,39 +40,42 @@ Elite::Renderer::Renderer(SDL_Window* pWindow)
 	m_pBackBuffer = SDL_CreateRGBSurface(0, m_Width, m_Height, 32, 0, 0, 0, 0);
 	m_pBackBufferPixels = (uint32_t*)m_pBackBuffer->pixels;
 
-	for (uint32_t idx{}; idx < m_Threads.size(); ++idx)
+	if (renderMode == RenderMode::Multi_Threaded)
 	{
-		m_Threads[idx] = std::thread(std::bind(&Renderer::RenderThreadFnc, this));
+		m_Threads.resize(threadCount);
+		for (uint32_t idx{}; idx < threadCount; ++idx)
+		{
+			m_Threads[idx] = std::thread(std::bind(&Renderer::RenderThreadFnc, this));
+		}
+
+		m_RenderFunction = std::bind(&Renderer::MultiThreadedRender, this, std::placeholders::_1);
 	}
+	else
+		m_RenderFunction = std::bind(&Renderer::TileRender, this, std::placeholders::_1, TileSettings{ 0, 0, m_Width, m_Height });
 }
 
 Elite::Renderer::~Renderer()
 {
-	m_ThreadsRunning.store(false);
-	m_Waiter.notify_all();
-
-	for (std::thread& t : m_Threads)
+	if (m_Threads.size() > 0)
 	{
-		if (t.joinable())
-			t.join();
-	}
+		m_ThreadsRunning.store(false);
+		m_Waiter.notify_all();
 
-	m_Threads.clear();
+		for (std::thread& t : m_Threads)
+		{
+			if (t.joinable())
+				t.join();
+		}
+
+		m_Threads.clear();
+	}
 }
 
 void Elite::Renderer::Render(PerspectiveCamera* pCamera)
 {
 	SDL_LockSurface(m_pBackBuffer);
 
-	{
-		std::lock_guard lck{ m_TileWorkMutex };
-		InitWorkQueue(pCamera);
-		m_RemainingWork.store(int(m_WorkQueue.size()));
-	}
-	m_Waiter.notify_all();
-
-	std::unique_lock lck{ m_TileWorkMutex };
-	m_FrameWaiter.wait(lck, [this]() { return m_RemainingWork == 0; });
+	m_RenderFunction(pCamera);
 
 	SDL_UnlockSurface(m_pBackBuffer);
 	SDL_BlitSurface(m_pBackBuffer, 0, m_pFrontBuffer, 0);
@@ -105,12 +110,12 @@ void Elite::Renderer::InitWorkQueue(PerspectiveCamera* pCamera)
 			ts.width = TILE_SIZE;
 			ts.height = TILE_SIZE;
 
-			m_WorkQueue.push_back(std::bind(&Renderer::PartialRender, this, pCamera, ts));
+			m_WorkQueue.push_back(std::bind(&Renderer::TileRender, this, pCamera, ts));
 		}
 }
 
 void Elite::Renderer::RenderThreadFnc()
-{
+{                            
 	while (m_ThreadsRunning)
 	{
 		std::unique_lock lck{ m_TileWorkMutex };
@@ -131,7 +136,20 @@ void Elite::Renderer::RenderThreadFnc()
 	}
 }
 
-void Elite::Renderer::PartialRender(PerspectiveCamera* pCamera, TileSettings tileSettings)
+void Elite::Renderer::MultiThreadedRender(PerspectiveCamera* pCamera)
+{
+	{
+		std::lock_guard lck{ m_TileWorkMutex };
+		InitWorkQueue(pCamera);
+		m_RemainingWork.store(int(m_WorkQueue.size()));
+	}
+	m_Waiter.notify_all();
+
+	std::unique_lock lck{ m_TileWorkMutex };
+	m_FrameWaiter.wait(lck, [this]() { return m_RemainingWork == 0; });
+}
+
+void Elite::Renderer::TileRender(PerspectiveCamera* pCamera, TileSettings tileSettings)
 {
 	bool hit{ false };
 
@@ -162,7 +180,7 @@ void Elite::Renderer::PartialRender(PerspectiveCamera* pCamera, TileSettings til
 			Elite::FPoint3 hitPoint{ hitRecord.ray.GetPoint(hitRecord.t) };
 			for (Light* pLight : pLights)
 			{
-				if (pLight->IsOn())
+				if (pLight->IsOn() && !pLight->IsOutOfRange(hitPoint))
 				{
 					bool hasLight{ true };
 					float rayTMax{ FLT_MAX };
@@ -179,7 +197,7 @@ void Elite::Renderer::PartialRender(PerspectiveCamera* pCamera, TileSettings til
 
 					if (hardShadows)
 					{
-						HitRecord shadowHitRecord{ Ray(hitPoint, hPointLightDir, 0.001f, rayTMax) };
+						HitRecord shadowHitRecord{ Ray(hitPoint, hPointLightDir, 0.001f, rayTMax - 0.001f) };
 						for (Object* pObject : pObjects)
 						{
 							if (pObject->HitCheck(shadowHitRecord, true))
@@ -212,6 +230,7 @@ void Elite::Renderer::PartialRender(PerspectiveCamera* pCamera, TileSettings til
 					}
 				}
 			}
+			pixelColor += hitRecord.color;
 			pixelColor.MaxToOne();
 
 			//Fill the pixels - pixel access demo

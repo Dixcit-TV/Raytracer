@@ -68,7 +68,12 @@ void SceneGraph::Update(float deltaT)
 	for (Object* pObject : m_pObjects)
 		pObject->Update(deltaT);
 
-	m_pLights[0]->SetIsOn(ProjectSettings::GetInstance()->IsPointLight1Enabled());
-	m_pLights[1]->SetIsOn(ProjectSettings::GetInstance()->IsPointLight2Enabled());
-	m_pLights[2]->SetIsOn(ProjectSettings::GetInstance()->IsDirectionalLightEnabled());
+	if (m_pLights.size() > 0)
+		m_pLights[0]->SetIsOn(ProjectSettings::GetInstance()->IsPointLight1Enabled());
+
+	if (m_pLights.size() > 1)
+		m_pLights[1]->SetIsOn(ProjectSettings::GetInstance()->IsPointLight2Enabled());
+
+	if (m_pLights.size() > 2)
+		m_pLights[2]->SetIsOn(ProjectSettings::GetInstance()->IsDirectionalLightEnabled());
 }

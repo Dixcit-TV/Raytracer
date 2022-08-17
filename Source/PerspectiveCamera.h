@@ -9,7 +9,7 @@ public:
 	explicit PerspectiveCamera(const Elite::FPoint3& position, const Elite::FVector3& nForward, float aspectRation, float fovAngleDeg = 45.f);
 	~PerspectiveCamera() = default;
 
-	Ray CastRay(const Elite::IPoint2& pixel, uint32_t windWidth, uint32_t winHeight);
+	Ray CastRay(const Elite::IPoint2& pixel, uint32_t windWidth, uint32_t winHeight) const;
 	void Update(float deltaT);
 
 private:
@@ -20,5 +20,6 @@ private:
 	void Zoom(int zoomStrength);
 	void Translate(const Elite::FVector3& offset);
 	void RotateCamera(float yaw, float pitch, float roll);
+	//void RayDebugPicking(const Elite::FPoint2& mousePos, uint32_t windWidth, uint32_t winHeight) const;
 };
 

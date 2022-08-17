@@ -7,8 +7,8 @@ class Material;
 
 struct Bound
 {
-	Elite::FPoint3 botFrontLeft;
-	Elite::FPoint3 size;
+	Elite::FPoint3 min;
+	Elite::FVector3 size;
 
 	bool IsValid() const { return size.x > 0.f && size.y > 0.f && size.z > 0.f; }
 };
@@ -32,6 +32,8 @@ struct HitRecord
 	Ray ray;
 	const Material* pMaterial;
 	Elite::FVector3 normal;
+	Elite::FPoint3 coordinates;
+	Elite::RGBColor color;
 	float t;
 };
 

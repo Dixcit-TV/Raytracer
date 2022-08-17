@@ -22,6 +22,11 @@ class PerspectiveCamera;
 
 namespace Elite
 {
+	enum class RenderMode
+	{
+		Single_Thread, Multi_Threaded
+	};
+
 	struct TileSettings
 	{
 		uint32_t x, y;
@@ -33,7 +38,7 @@ namespace Elite
 	public:
 		const uint32_t TILE_SIZE = 8;
 
-		Renderer(SDL_Window* pWindow);
+		Renderer(SDL_Window* pWindow, RenderMode renderMode = RenderMode::Single_Thread, size_t threadCount = size_t(std::thread::hardware_concurrency()));
 		~Renderer();
 
 		Renderer(const Renderer&) = delete;
@@ -45,6 +50,8 @@ namespace Elite
 		bool SaveBackbufferToImage() const;
 
 	private:
+		std::function<void(PerspectiveCamera*)> m_RenderFunction;
+
 		std::vector<std::thread> m_Threads;
 		std::vector<std::function<void()>> m_WorkQueue;
 
@@ -61,9 +68,12 @@ namespace Elite
 		uint32_t m_Width = 0;
 		uint32_t m_Height = 0;
 
+		RenderMode m_RenderMode = RenderMode::Single_Thread;
+
 		void InitWorkQueue(PerspectiveCamera* pCamera);
 		void RenderThreadFnc();
-		void PartialRender(PerspectiveCamera* pCamera, TileSettings tileSettings);
+		void MultiThreadedRender(PerspectiveCamera* pCamera);
+		void TileRender(PerspectiveCamera* pCamera, TileSettings tileSettings);
 		//void Shading(HitRecord hitRecord, size_t pixel);
 	};
 }

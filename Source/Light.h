@@ -9,7 +9,7 @@ public:
 	virtual ~Light() = default;
 
 	virtual Elite::RGBColor CalculateIllumination(const Elite::FPoint3& hitPoint) const = 0;
-
+	virtual bool IsOutOfRange(const Elite::FPoint3& hitPoint) const = 0;
 	virtual Elite::FVector3 GetDirection(const Elite::FPoint3& lookAt) const = 0;
 	LightType GetType() const;
 	bool IsOn() const;

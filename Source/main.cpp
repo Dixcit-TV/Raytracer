@@ -82,7 +82,7 @@ void InitScene1()
 void InitScene2()
 {
 	SceneGraph scene2{};
-	TriangleMesh* trMesh{ new TriangleMesh("Resources/lowpoly_bunny.obj", Elite::MakeTranslation(Elite::FVector3(0.f, 0.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Gold"), true) };
+	TriangleMesh* trMesh{ new TriangleMesh("Resources/lowpoly_bunny.obj", Elite::MakeTranslation(Elite::FVector3(0.f, 0.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Red"), true) };
 	scene2.AddObject(trMesh);
 	trMesh->SetPartition(true);
 
@@ -90,14 +90,30 @@ void InitScene2()
 	//scene2.AddObject(trMesh);
 	//trMesh->SetPartition(true);
 
-	//scene2.AddObject(new Plane(Elite::MakeTranslation(Elite::FVector3(0.f, 0.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
-	//scene2.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationX(float(E_PI_DIV_2)), Elite::FVector3(0.f, 0.f, -6.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
-	//scene2.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationZ(float(E_PI_DIV_2)), Elite::FVector3(5.f, 0.f, 0.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
-	//scene2.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationZ(float(-E_PI_DIV_2)), Elite::FVector3(-5.f, 0.f, 0.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
+	//trMesh = new TriangleMesh("Resources/lowpoly_bunny.obj", Elite::MakeTranslation(Elite::FVector3(5.f, 0.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Gold"), true);
+	//scene2.AddObject(trMesh);
+	//trMesh->SetPartition(true);
 
-	scene2.AddLight(new PointLight(Elite::FPoint3(0.f, 8.f, -2.f), 25.f, Elite::RGBColor(1.f, 0.84f, 0.77f)));
-	scene2.AddLight(new PointLight(Elite::FPoint3(0.f, 5.f, 6.f), 50.f, Elite::RGBColor(1.f, 1.f, 1.f)));
-	scene2.AddLight(new DirectionalLight(Elite::FVector3(0.f, -1.f, 0.f), 1.f, Elite::RGBColor(0.79f, 1.f, 1.f)));
+	//trMesh = new TriangleMesh("Resources/lowpoly_bunny.obj", Elite::MakeTranslation(Elite::FVector3(5.f, 5.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Gold"), true);
+	//scene2.AddObject(trMesh);
+	//trMesh->SetPartition(true);
+
+	//trMesh = new TriangleMesh("Resources/lowpoly_bunny.obj", Elite::MakeTranslation(Elite::FVector3(-5.f, 0.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Gold"), true);
+	//scene2.AddObject(trMesh);
+	//trMesh->SetPartition(true);
+
+	//trMesh = new TriangleMesh("Resources/lowpoly_bunny.obj", Elite::MakeTranslation(Elite::FVector3(-5.f, 5.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Gold"), true);
+	//scene2.AddObject(trMesh);
+	//trMesh->SetPartition(true);
+
+	//scene2.AddObject(new Plane(Elite::MakeTranslation(Elite::FVector3(0.f, 0.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Green")));
+	//scene2.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationX(float(E_PI_DIV_2)), Elite::FVector3(0.f, 0.f, -10.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Green")));
+	//scene2.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationZ(float(E_PI_DIV_2)), Elite::FVector3(15.f, 0.f, 0.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
+	//scene2.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationZ(float(-E_PI_DIV_2)), Elite::FVector3(-15.f, 0.f, 0.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
+
+	//scene2.AddLight(new PointLight(Elite::FPoint3(0.f, 8.f, -2.f), 25.f, Elite::RGBColor(1.f, 0.84f, 0.77f)));
+	//scene2.AddLight(new PointLight(Elite::FPoint3(0.f, 5.f, 6.f), 50.f, Elite::RGBColor(1.f, 1.f, 1.f)));
+	scene2.AddLight(new DirectionalLight(Elite::FVector3(0.f, -1.f, 0.f), 3.f, Elite::RGBColor(0.79f, 1.f, 1.f)));
 
 	SceneManager::GetInstance()->AddScene(std::move(scene2));
 }
@@ -138,7 +154,7 @@ int main(int argc, char* args[])
 	//Initialize "framework"
 	Elite::Timer* pTimer = new Elite::Timer();
 	PerspectiveCamera* pCamera = new PerspectiveCamera(Elite::FPoint3(0.f, 3.f, 10.f), Elite::FVector3(0.f, 0.f, 1.f), float(width) / height, 45.f);
-	Elite::Renderer* pRenderer = new Elite::Renderer(pWindow);
+	Elite::Renderer* pRenderer = new Elite::Renderer(pWindow, Elite::RenderMode::Single_Thread);
 	InitMaterials();
 	InitScene1();
 	InitScene2();
