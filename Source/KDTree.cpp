@@ -118,7 +118,7 @@ std::vector<Split> KDTree::GetSplitCandidates(const TriangleMesh* tMesh, const s
 	//Order the split candidates by position and prioritize the END split in case of tie
 	std::sort(begin(splits), end(splits), [](const Split& s1, const Split& s2)
 		{
-			if (abs(s1.position - s2.position) < 0.00001f)
+			if (abs(s1.position - s2.position) < FLT_EPSILON)
 				return s1.type > s2.type;
 
 			return s1.position < s2.position;

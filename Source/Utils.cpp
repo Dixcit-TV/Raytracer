@@ -7,8 +7,7 @@ void ObjReader::LoadModel(const std::string& objPath, std::vector<Elite::FPoint3
 	if (!objStream.is_open())
 		std::cout << "Error: Could not open obj file \"" << objPath << "\".";
 
-	std::string line{}, header{};
-	std::smatch match{};
+	std::string line{};
 
 	while (!objStream.eof())
 	{
@@ -17,17 +16,18 @@ void ObjReader::LoadModel(const std::string& objPath, std::vector<Elite::FPoint3
 
 		if (!line.empty())
 		{
-     		if (std::regex_search(line, match, std::regex("^(v|f)\\s*(-?\\d+(?:\\.\\d+)?) (-?\\d+(?:\\.\\d+)?) (-?\\d+(?:\\.\\d+)?)")))
+			float values[3];
+     		if (sscanf_s(line.c_str(), "%*s %f %f %f", values, values + 1, values + 2) == 3)
 			{
-				if (match[1] == "v")
+				if (line._Starts_with("v "))
 				{
-					vertexBuffer.push_back(Elite::FPoint3{ std::stof(match[2]), std::stof(match[3]), std::stof(match[4]) });
+					vertexBuffer.push_back(Elite::FPoint3{ values[0], values[1], values[2] });
 				}
-				else if (match[1] == "f")
+				else if (line._Starts_with("f "))
 				{
-					indexBuffer.push_back(std::stoi(match[2]) - 1);
-					indexBuffer.push_back(std::stoi(match[3]) - 1);
-					indexBuffer.push_back(std::stoi(match[4]) - 1);
+					indexBuffer.push_back(static_cast<int>(values[0]) - 1);
+					indexBuffer.push_back(static_cast<int>(values[1]) - 1);
+					indexBuffer.push_back(static_cast<int>(values[2]) - 1);
 				}
 			}
 		}

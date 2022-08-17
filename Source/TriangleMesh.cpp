@@ -37,8 +37,8 @@ TriangleMesh::TriangleMesh(const std::string& objPath, const Elite::FMatrix4& tr
 		max.z = std::max(max.z, vertex.z);
 	}
 
-	m_Bound.min = min;
-	m_Bound.size = max - min;
+	m_Bound.min = min - Elite::FVector3(FLT_EPSILON, FLT_EPSILON, FLT_EPSILON);
+	m_Bound.size = (max + Elite::FVector3(FLT_EPSILON, FLT_EPSILON, FLT_EPSILON)) - min;
 }
 
 TriangleMesh::~TriangleMesh()
@@ -61,7 +61,7 @@ void TriangleMesh::SetPartition(bool usePartition)
 
 		// Physically Base Rendering: From Theory to Implementation =======> below equation yields a fairly good estimation of max depth for various scenes
 		uint32_t maxDepth{ 8u + static_cast<uint32_t>(1.3f * std::log2(GetTriangleCount())) };
-		m_pPartitioning = new KDTree(maxDepth, 4);
+		m_pPartitioning = new KDTree(maxDepth, 1);
 		m_pPartitioning->Build(this);
 	}
 	else

@@ -381,6 +381,16 @@ namespace Elite
 			0, 0, 1, v.z,
 			0, 0, 0, 1);
 	}
+
+	template<typename T>
+	inline Matrix<4, 4, T> MakeScale(const Vector<3, T>& v)
+	{
+		return Matrix<4, 4, T>(
+			v.x, 0, 0, 0,
+			0, v.y, 0, 0,
+			0, 0, v.z, 0,
+			0, 0, 0, 1);
+	}
 #pragma endregion
 }
 #endif

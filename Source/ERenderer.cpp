@@ -197,7 +197,7 @@ void Elite::Renderer::TileRender(PerspectiveCamera* pCamera, TileSettings tileSe
 
 					if (hardShadows)
 					{
-						HitRecord shadowHitRecord{ Ray(hitPoint, hPointLightDir, 0.001f, rayTMax - 0.001f) };
+						HitRecord shadowHitRecord{ Ray(hitPoint, hPointLightDir, 0.0001f, rayTMax - 0.0001f) };
 						for (Object* pObject : pObjects)
 						{
 							if (pObject->HitCheck(shadowHitRecord, true))
