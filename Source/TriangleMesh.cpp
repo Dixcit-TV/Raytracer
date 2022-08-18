@@ -93,7 +93,7 @@ bool TriangleMesh::TraceTriangle(size_t triIDx, HitRecord& hitRecord, bool isSha
 		return false;
 
 	hitRecord.pMaterial = m_pMaterial;
-	hitRecord.color = m_tColor[triIDx];
+	//hitRecord.color = m_tColor[triIDx];
 		
 	return true;
 }

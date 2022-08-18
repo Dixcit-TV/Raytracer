@@ -8,7 +8,7 @@ public:
 	~DirectionalLight() override = default;
 
 	Elite::FVector3 GetDirection(const Elite::FPoint3& lookAt) const override;
-	bool IsOutOfRange(const Elite::FPoint3&) const override { return false; }
+	bool IsOutOfRange(const Elite::FPoint3&, const Elite::FVector3& hitNormal) const override { return Dot(hitNormal, -m_Direction) <= FLT_EPSILON; }
 	Elite::RGBColor CalculateIllumination(const Elite::FPoint3& hitPoint) const override;
 
 private:

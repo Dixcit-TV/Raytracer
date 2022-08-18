@@ -180,7 +180,7 @@ void Elite::Renderer::TileRender(PerspectiveCamera* pCamera, TileSettings tileSe
 			Elite::FPoint3 hitPoint{ hitRecord.ray.GetPoint(hitRecord.t) };
 			for (Light* pLight : pLights)
 			{
-				if (pLight->IsOn() && !pLight->IsOutOfRange(hitPoint))
+				if (pLight->IsOn() && !pLight->IsOutOfRange(hitPoint, hitRecord.normal))
 				{
 					bool hasLight{ true };
 					float rayTMax{ FLT_MAX };
@@ -212,25 +212,22 @@ void Elite::Renderer::TileRender(PerspectiveCamera* pCamera, TileSettings tileSe
 					{
 						float dot{ Dot(hitRecord.normal, hPointLightDir) };
 
-						if (dot > 0.f)
+						switch (lightMode)
 						{
-							switch (lightMode)
-							{
-							case LightRenderMode::ALL:
-								pixelColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir) * pLight->CalculateIllumination(hitPoint) * dot;
-								break;
-							case LightRenderMode::BRDFONLY:
-								pixelColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir) * dot;
-								break;
-							case LightRenderMode::LIGHTSOURCETONLY:
-								pixelColor += pLight->CalculateIllumination(hitPoint) * dot;
-								break;
-							}
+						case LightRenderMode::ALL:
+							pixelColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir) * pLight->CalculateIllumination(hitPoint) * dot;
+							break;
+						case LightRenderMode::BRDFONLY:
+							pixelColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir) * dot;
+							break;
+						case LightRenderMode::LIGHTSOURCETONLY:
+							pixelColor += pLight->CalculateIllumination(hitPoint) * dot;
+							break;
 						}
 					}
 				}
 			}
-			pixelColor += hitRecord.color;
+			//pixelColor += hitRecord.color;
 			pixelColor.MaxToOne();
 
 			//Fill the pixels - pixel access demo

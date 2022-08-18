@@ -108,7 +108,7 @@ namespace Math
 
 		hitRecord.t = t;
 		hitRecord.normal = Elite::GetNormalized(Elite::Cross(edge01, edge02)) * ((cullMode == CullMode::FRONTFACE) * -1.f + (cullMode != CullMode::FRONTFACE) * 1);
-		hitRecord.coordinates = Elite::FPoint3(v, v , 1 - u - v);
+		//hitRecord.coordinates = Elite::FPoint3(v, v , 1 - u - v);
 
 		return true;
 	}

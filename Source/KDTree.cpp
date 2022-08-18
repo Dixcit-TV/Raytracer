@@ -177,6 +177,48 @@ bool KDTree::IntersectionTest(const TriangleMesh* tMesh, HitRecord& hRecord, boo
 	return RayBoundsIntersection(hRecord.ray, tMesh->GetBound(), tMin, tMax) ?
 		IntersectionNodeTest(tMesh, hRecord, 0, tMin, tMax, isShadowTest)
 		: false;
+
+	//float tMin, tMax;
+	//if (!RayBoundsIntersection(hRecord.ray, tMesh->GetBound(), tMin, tMax))
+	//	return false;
+
+	//std::vector<Elite::FVector3> queue{};
+	//queue.push_back(Elite::FVector3(0, tMin, tMax));
+	//bool result{ false };
+	//while (queue.size() != 0 && !(isShadowTest && result))
+	//{
+	//	Elite::FVector3 currentNodeInfo{ queue.back() };
+	//	uint32_t currentNodeIdx{ uint32_t(currentNodeInfo.x) };
+	//	const TreeNode& currentNode{ m_Nodes[currentNodeIdx]};
+	//	queue.pop_back();
+
+	//	if (currentNode.isLeaf)
+	//	{
+
+	//		const size_t triCount{ currentNode.pCandidates.size() };
+	//		for (size_t idx{}; idx < triCount && (!(isShadowTest && result)); ++idx)
+	//			result |= tMesh->TraceTriangle(currentNode.pCandidates[idx], hRecord, isShadowTest);
+	//	}
+	//	else
+	//	{
+	//		float t{ (currentNode.splitValue - hRecord.ray.origin[currentNode.axis]) / hRecord.ray.direction[currentNode.axis] };
+	//		bool belowFirst{ hRecord.ray.direction[currentNode.axis] > 0 };
+	//		uint32_t nearNodeIdx{ belowFirst ? currentNodeIdx + 1 : currentNode.rChild };
+	//		uint32_t farNodeIdx{ belowFirst ? currentNode.rChild : currentNodeIdx + 1 };
+
+	//		if (t >= currentNodeInfo.z)
+	//			queue.push_back(Elite::FVector3(float(nearNodeIdx), currentNodeInfo.y, currentNodeInfo.z));
+	//		else if (t <= currentNodeInfo.y)
+	//			queue.push_back(Elite::FVector3(float(farNodeIdx), currentNodeInfo.y, currentNodeInfo.z));
+	//		else
+	//		{
+	//			queue.push_back(Elite::FVector3(float(farNodeIdx), t, currentNodeInfo.z));
+	//			queue.push_back(Elite::FVector3(float(nearNodeIdx), currentNodeInfo.y, t));
+	//		}
+	//	}
+	//}
+
+	//return result;
 }
 
 //https://graphics.stanford.edu/papers/gpu_kdtree/kdtree.pdf
@@ -208,7 +250,7 @@ bool KDTree::IntersectionNodeTest(const TriangleMesh* tMesh, HitRecord& hRecord,
 		return IntersectionNodeTest(tMesh, hRecord, farNodeIdx, tMin, tMax, isShadowTest);
 
 	return IntersectionNodeTest(tMesh, hRecord, nearNodeIdx, tMin, t, isShadowTest) 
-		|| IntersectionNodeTest(tMesh, hRecord, farNodeIdx, t, tMax, isShadowTest);
+		| IntersectionNodeTest(tMesh, hRecord, farNodeIdx, t, tMax, isShadowTest);
 }
 
 
