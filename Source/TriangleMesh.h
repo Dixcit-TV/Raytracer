@@ -21,14 +21,14 @@ public:
 	void GetTriangle(size_t triId, Elite::FPoint3 vertices[3]) const
 	{ 
 		Elite::IPoint3 indices{  };
-		memcpy(&indices, &m_iBuffer[triId * 3], 3 * sizeof(int));
+		memcpy(indices.data, &m_iBuffer[triId * 3], 3 * sizeof(int));
 		Elite::FPoint3 v[3]{ m_vBuffer[indices.x], m_vBuffer[indices.y], m_vBuffer[indices.z] };
 
 		vertices[0] = m_IsStatic ? v[0] : Elite::FPoint3(m_Transform * Elite::FPoint4(v[0]));
 		vertices[1] = m_IsStatic ? v[1] : Elite::FPoint3(m_Transform * Elite::FPoint4(v[1]));
 		vertices[2] = m_IsStatic ? v[2] : Elite::FPoint3(m_Transform * Elite::FPoint4(v[2]));
 	}
-	Elite::FPoint3 GetVertex(int idx) const { return m_IsStatic ? m_vBuffer[m_iBuffer[idx]] : Elite::FPoint3(m_Transform * Elite::FPoint4(m_vBuffer[m_iBuffer[idx]])); }
+
 	CullMode GetCullMode() const { return m_CullMode; }
 	const Bound& GetBound() const { return m_Bound; }
 
