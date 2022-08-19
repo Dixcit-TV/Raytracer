@@ -12,11 +12,16 @@ enum class SplitType : uint8_t
 
 struct TreeNode
 {
-	uint32_t rChild{};
-	std::vector<uint32_t> pCandidates{};
-	float splitValue{};
-	uint8_t axis{};
-	bool isLeaf{};
+	union {
+		uint32_t rChild{};
+		uint32_t primCount;
+		uint8_t flag;
+	};
+
+	union {
+		float splitValue{};
+		uint32_t primOffset;
+	};
 };
 
 struct Split
@@ -52,6 +57,7 @@ private:
 	static const uint8_t kCount = 3;
 
 	std::vector<TreeNode> m_Nodes;
+	std::vector<uint32_t> m_Prims;
 	uint32_t m_MaxDepth;
 	uint32_t m_MinTriCount;
 	bool m_IsIntialized;

@@ -32,8 +32,10 @@ void KDTree::Subdivide(const TriangleMesh* tMesh, uint32_t currentNodeIdx, const
 	//Reached the limits, make this node a leaf
 	if (depth >= m_MaxDepth || triCount <= m_MinTriCount)
 	{
-		currentNode.pCandidates = std::move(tris);
-		currentNode.isLeaf = true;
+		currentNode.flag = 3;
+		currentNode.primOffset = uint32_t(m_Prims.size());
+		currentNode.primCount |= triCount << 2;
+		std::move(std::begin(tris), std::end(tris), std::back_inserter(m_Prims));
 		return;
 	}
 
@@ -57,7 +59,7 @@ void KDTree::Subdivide(const TriangleMesh* tMesh, uint32_t currentNodeIdx, const
 	//else make this node a leaf
 	if (bestSplit.cost < static_cast<float>(triCount) * IntersectCost)
 	{
-		currentNode.axis = axis;
+		currentNode.flag = axis;
 		currentNode.splitValue = splits[bestSplit.splitIdx].position;
 
 		m_Nodes.push_back(TreeNode());
@@ -75,7 +77,7 @@ void KDTree::Subdivide(const TriangleMesh* tMesh, uint32_t currentNodeIdx, const
 
 		//Store the idx of the first child (the second is right next to it)
 		uint32_t rChildIdx{ static_cast<uint32_t>(m_Nodes.size()) };
-		m_Nodes[currentNodeIdx].rChild = rChildIdx;
+		m_Nodes[currentNodeIdx].rChild |= rChildIdx << 2;
 		m_Nodes.push_back(TreeNode());
 		//Retrieve the triangles in the Right node
 		std::vector<uint32_t> rTris{};
@@ -91,8 +93,10 @@ void KDTree::Subdivide(const TriangleMesh* tMesh, uint32_t currentNodeIdx, const
 	}
 	else
 	{
-		currentNode.pCandidates = std::move(tris);
-		currentNode.isLeaf = true;
+		currentNode.flag = 3;
+		currentNode.primOffset = uint32_t(m_Prims.size());
+		currentNode.primCount |= triCount << 2;
+		std::move(std::begin(tris), std::end(tris), std::back_inserter(m_Prims));
 	}
 }    
 
@@ -228,20 +232,21 @@ bool KDTree::IntersectionTest(const TriangleMesh* tMesh, HitRecord& hRecord, boo
 bool KDTree::IntersectionNodeTest(const TriangleMesh* tMesh, HitRecord& hRecord, uint32_t currentNodeIdx, float tMin, float tMax, bool isShadowTest) const
 {
  	const TreeNode& currentNode{ m_Nodes[currentNodeIdx] };
-	if (currentNode.isLeaf)
+	const uint8_t flag{ uint8_t(currentNode.flag & 3) };
+	if (flag == 3)
 	{
 		bool result{ false };
-		const size_t triCount{ currentNode.pCandidates.size() };
-		for (size_t idx{}; idx < triCount && (!(isShadowTest & result)); ++idx)
-			result |= tMesh->TraceTriangle(currentNode.pCandidates[idx], hRecord, isShadowTest);
+		const uint32_t end{ currentNode.primOffset + (currentNode.primCount >> 2) };
+		for (uint32_t idx{ currentNode.primOffset }; idx < end && (!(isShadowTest & result)); ++idx)
+			result |= tMesh->TraceTriangle(m_Prims[idx], hRecord, isShadowTest);
 
 		return result;
 	}
 
-	float t{ (currentNode.splitValue - hRecord.ray.origin[currentNode.axis]) / hRecord.ray.direction[currentNode.axis] };
-	bool belowFirst{ hRecord.ray.direction[currentNode.axis] > 0 };
-	uint32_t nearNodeIdx{ belowFirst ? currentNodeIdx + 1 : currentNode.rChild };
-	uint32_t farNodeIdx{ belowFirst ? currentNode.rChild : currentNodeIdx + 1 };
+	float t{ (currentNode.splitValue - hRecord.ray.origin[flag]) / hRecord.ray.direction[flag] };
+	bool belowFirst{ hRecord.ray.direction[flag] > 0 };
+	uint32_t nearNodeIdx{ belowFirst ? currentNodeIdx + 1 : (currentNode.rChild >> 2) };
+	uint32_t farNodeIdx{ belowFirst ? (currentNode.rChild >> 2) : currentNodeIdx + 1 };
 
 	if (t >= tMax)
 		return IntersectionNodeTest(tMesh, hRecord, nearNodeIdx, tMin, tMax, isShadowTest);
