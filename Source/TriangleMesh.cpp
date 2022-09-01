@@ -4,10 +4,8 @@
 
 TriangleMesh::TriangleMesh(const std::string& objPath, const Elite::FMatrix4& transform, Material* pMaterial, bool isStatic, CullMode cullMode)
 	: Object(transform, pMaterial)
-	, m_Bound()
 	, m_vBuffer()
 	, m_vColor()
-	, m_tColor()
 	, m_iBuffer()
 	, m_pPartitioning(nullptr)
 	, m_CullMode(cullMode)
@@ -15,7 +13,6 @@ TriangleMesh::TriangleMesh(const std::string& objPath, const Elite::FMatrix4& tr
 {
 	ObjReader::LoadModel(objPath, m_vBuffer, m_iBuffer);
 	m_vColor.resize(m_vBuffer.size(), Elite::RGBColor(1.f, 1.f, 1.f));
-	m_tColor.resize(m_iBuffer.size() / 3, Elite::RGBColor());
 
 	if (isStatic)
 	{
@@ -93,7 +90,6 @@ bool TriangleMesh::TraceTriangle(size_t triIDx, HitRecord& hitRecord, bool isSha
 		return false;
 
 	hitRecord.pMaterial = m_pMaterial;
-	//hitRecord.color = m_tColor[triIDx];
 		
 	return true;
 }

@@ -16,8 +16,6 @@ public:
 	bool HitCheck(HitRecord& hitRecord, bool isShadowTest = false) const override;
 	bool TraceTriangle(size_t triIDx, HitRecord& hitRecord, bool isShadowTest = false) const;
 
-	void setTriangleColor(size_t triId, const Elite::RGBColor& newColor){ m_tColor[triId] = newColor; }
-
 	void GetTriangle(size_t triId, Elite::FPoint3 vertices[3]) const
 	{ 
 		Elite::IPoint3 indices{  };
@@ -30,7 +28,6 @@ public:
 	}
 
 	CullMode GetCullMode() const { return m_CullMode; }
-	const Bound& GetBound() const { return m_Bound; }
 
 	size_t GetTriangleCount() const { return m_iBuffer.size() / 3; }
 
@@ -39,10 +36,8 @@ public:
 	void SetPartition(bool usePartition);
 
 private:
-	Bound m_Bound;
 	std::vector<Elite::FPoint3> m_vBuffer;
 	std::vector<Elite::RGBColor> m_vColor;
-	std::vector<Elite::RGBColor> m_tColor;
 	std::vector<int> m_iBuffer;
 	KDTree* m_pPartitioning;
 	CullMode m_CullMode;

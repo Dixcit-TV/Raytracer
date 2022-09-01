@@ -9,6 +9,7 @@ public:
 	~LambertCookTorranceMaterial() override = default;
 
 	Elite::RGBColor Shade(const HitRecord& hitRecord, const Elite::FVector3& lightVector) const override;
+	virtual Elite::RGBColor GetReflectance() const override { return (m_IsMetal ? m_Albedo : Elite::RGBColor{ 0.004f, 0.004f, 0.004f }); }
 
 private:
 	Elite::RGBColor m_Albedo;

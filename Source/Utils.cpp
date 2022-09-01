@@ -1,5 +1,42 @@
 #include "Utils.h"
 
+Elite::FPoint3 Math::GetRayOriginOffset(const Elite::FPoint3 p, const Elite::FVector3 n)
+{
+	Elite::IPoint3 of_i(int(int_scale() * n.x), int(int_scale() * n.y), int(int_scale() * n.z));
+	Elite::IPoint3 pi(*(int*)&p.x + ((p.x < 0.f) ? -of_i.x : of_i.x)
+		, *(int*)&p.y + ((p.y < 0.f) ? -of_i.y : of_i.y)
+		, *(int*)&p.z + ((p.z < 0.f) ? -of_i.z : of_i.z));
+
+	return Elite::FPoint3(fabsf(p.x) < origin() ? p.x + float_scale() * n.x : *(float*)&pi.x
+		, fabsf(p.y) < origin() ? p.y + float_scale() * n.y : *(float*)&pi.y
+		, fabsf(p.z) < origin() ? p.z + float_scale() * n.z : *(float*)&pi.z);
+}
+
+//https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
+bool Math::RayBoundsIntersection(const Ray& ray, const Bound& bound, float& tMin, float& tMax)
+{
+	const Elite::FVector3 invRayDir{ 1.f / ray.direction.x, 1.f / ray.direction.y, 1.f / ray.direction.z };
+
+	Elite::FPoint3 tL{ bound.min - ray.origin };
+	Elite::FPoint3 tH{ tL + bound.size };
+	tL.x *= invRayDir.x;
+	tL.y *= invRayDir.y;
+	tL.z *= invRayDir.z;
+
+	tH.x *= invRayDir.x;
+	tH.y *= invRayDir.y;
+	tH.z *= invRayDir.z;
+
+	auto minMaxX{ std::minmax(tL.x, tH.x) };
+	auto minMaxY{ std::minmax(tL.y, tH.y) };
+	auto minMaxZ{ std::minmax(tL.z, tH.z) };
+
+	tMin = std::max({ minMaxX.first, minMaxY.first, minMaxZ.first, ray.minT });
+	tMax = std::min({ minMaxX.second, minMaxY.second, minMaxZ.second, ray.maxT });
+
+	return tMin <= tMax;
+}
+
 void ObjReader::LoadModel(const std::string& objPath, std::vector<Elite::FPoint3>& vertexBuffer, std::vector<int>& indexBuffer)
 {
 	std::ifstream objStream{ objPath, std::ios::in | std::ios::binary };

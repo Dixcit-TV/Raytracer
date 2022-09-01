@@ -15,6 +15,7 @@
 #include "Material.h"
 #include "ProjectSettings.h"
 #include "SceneManager.h"
+#include "Utils.h"
 
 Elite::Renderer::Renderer(SDL_Window* pWindow, RenderMode renderMode, size_t threadCount)
 	: m_RenderFunction{}
@@ -151,83 +152,14 @@ void Elite::Renderer::MultiThreadedRender(PerspectiveCamera* pCamera)
 
 void Elite::Renderer::TileRender(PerspectiveCamera* pCamera, TileSettings tileSettings)
 {
-	bool hit{ false };
-
-	SceneGraph& currentScene{ SceneManager::GetInstance()->GetActiveScene() };
-	const std::vector<Object*>& pObjects{ currentScene.GetObjects() };
-	const std::vector<Light*>& pLights{ currentScene.GetLights() };
-	ProjectSettings* pProjectSettings{ ProjectSettings::GetInstance() };
-	bool hardShadows{ pProjectSettings->IsHardShadowEnabled() };
-	LightRenderMode lightMode{ pProjectSettings->GetLightMode() };
 	//Loop over all the pixels
 	for (uint32_t r = tileSettings.y; r < tileSettings.y + tileSettings.height; ++r)
 	{
 		for (uint32_t c = tileSettings.x; c < tileSettings.x + tileSettings.width; ++c)
 		{
-			hit = false;
-			Elite::RGBColor pixelColor{};
-			HitRecord hitRecord{ pCamera->CastRay(Elite::IPoint2(c, r), m_Width, m_Height) };
+			HitRecord hitRecord{ pCamera->CastRay(Elite::IPoint2{ int(c), int(r) }, m_Width, m_Height) };
 
-			for (Object* pObject : pObjects)
-				hit |= pObject->HitCheck(hitRecord);
-
-			if (!hit)
-			{
-				m_pBackBufferPixels[c + (r * m_Width)] = GetSDL_ARGBColor(pixelColor);
-				continue;
-			}
-
-			Elite::FPoint3 hitPoint{ hitRecord.ray.GetPoint(hitRecord.t) };
-			for (Light* pLight : pLights)
-			{
-				if (pLight->IsOn() && !pLight->IsOutOfRange(hitPoint, hitRecord.normal))
-				{
-					bool hasLight{ true };
-					float rayTMax{ FLT_MAX };
-					Elite::FVector3 hPointLightDir{ -pLight->GetDirection(hitPoint) };
-					switch (pLight->GetType())
-					{
-						case LightType::POINTLIGHT:
-							rayTMax = Magnitude(hPointLightDir);
-							hPointLightDir /= rayTMax;
-							break;
-						case LightType::DIRECTIONAL:
-							break;
-					}
-
-					if (hardShadows)
-					{
-						HitRecord shadowHitRecord{ Ray(hitPoint, hPointLightDir, 0.0001f, rayTMax - 0.0001f) };
-						for (Object* pObject : pObjects)
-						{
-							if (pObject->HitCheck(shadowHitRecord, true))
-							{
-								hasLight = false;
-								break;
-							}
-						}
-					}
-
-					if (hasLight)
-					{
-						float dot{ Dot(hitRecord.normal, hPointLightDir) };
-
-						switch (lightMode)
-						{
-						case LightRenderMode::ALL:
-							pixelColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir) * pLight->CalculateIllumination(hitPoint) * dot;
-							break;
-						case LightRenderMode::BRDFONLY:
-							pixelColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir) * dot;
-							break;
-						case LightRenderMode::LIGHTSOURCETONLY:
-							pixelColor += pLight->CalculateIllumination(hitPoint) * dot;
-							break;
-						}
-					}
-				}
-			}
-			//pixelColor += hitRecord.color;
+			Elite::RGBColor pixelColor{ Elite::Renderer::Trace(hitRecord, 0) };
 			pixelColor.MaxToOne();
 
 			//Fill the pixels - pixel access demo
@@ -236,73 +168,86 @@ void Elite::Renderer::TileRender(PerspectiveCamera* pCamera, TileSettings tileSe
 	}
 }
 
-//void Elite::Renderer::Shading(HitRecord hitRecord, size_t pixel)
-//{
-//	Elite::RGBColor pixelColor{};
-//
-//	Elite::FPoint3 hitPoint{ hitRecord.ray.GetPoint(hitRecord.t) };
-//
-//	ProjectSettings* pProjectSettings{ ProjectSettings::GetInstance() };
-//	bool hardShadows{ pProjectSettings->IsHardShadowEnabled() };
-//	LightRenderMode lightMode{ pProjectSettings->GetLightMode() };
-//
-//	SceneGraph& currentScene{ SceneManager::GetInstance()->GetActiveScene() };
-//	const std::vector<Object*>& pObjects{ currentScene.GetObjects() };
-//	const std::vector<Light*>& pLights{ currentScene.GetLights() };
-//	for (Light* pLight : pLights)
-//	{
-//		if (pLight->IsOn())
-//		{
-//			bool hasLight{ true };
-//			float rayTMax{ FLT_MAX };
-//			Elite::FVector3 hPointLightDir{ -pLight->GetDirection(hitPoint) };
-//			switch (pLight->GetType())
-//			{
-//			case LightType::POINTLIGHT:
-//				rayTMax = Magnitude(hPointLightDir);
-//				hPointLightDir /= rayTMax;
-//				break;
-//			case LightType::DIRECTIONAL:
-//				break;
-//			}
-//
-//			if (hardShadows)
-//			{
-//				HitRecord shadowHitRecord{ Ray(hitPoint, hPointLightDir, 0.001f, rayTMax) };
-//				for (Object* pObject : pObjects)
-//				{
-//					if (pObject->HitCheck(shadowHitRecord, true))
-//					{
-//						hasLight = false;
-//						break;
-//					}
-//				}
-//			}
-//
-//			if (hasLight)
-//			{
-//				float dot{ Dot(hitRecord.normal, hPointLightDir) };
-//
-//				if (dot > 0.f)
-//				{
-//					switch (lightMode)
-//					{
-//					case LightRenderMode::ALL:
-//						pixelColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir) * pLight->CalculateIllumination(hitPoint) * dot;
-//						break;
-//					case LightRenderMode::BRDFONLY:
-//						pixelColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir) * dot;
-//						break;
-//					case LightRenderMode::LIGHTSOURCETONLY:
-//						pixelColor += pLight->CalculateIllumination(hitPoint) * dot;
-//						break;
-//					}
-//				}
-//			}
-//		}
-//	}
-//	pixelColor.MaxToOne();
-//
-//	//Fill the pixels - pixel access demo
-//	m_pBackBufferPixels[pixel] = GetSDL_ARGBColor(pixelColor);
-//}
+Elite::RGBColor Elite::Renderer::Trace(HitRecord hitRecord, uint8_t bounce)
+{
+	if (bounce > MAX_BOUNCE)
+		return Elite::RGBColor{};
+
+	ProjectSettings* pProjectSettings{ ProjectSettings::GetInstance() };
+	bool hardShadows{ pProjectSettings->IsHardShadowEnabled() };
+	LightRenderMode lightMode{ pProjectSettings->GetLightMode() };
+
+	SceneGraph& currentScene{ SceneManager::GetInstance()->GetActiveScene() };
+	const std::vector<Object*>& pObjects{ currentScene.GetObjects() };
+	const std::vector<Light*>& pLights{ currentScene.GetLights() };
+
+	bool hit = false;
+	Elite::RGBColor pixelColor{};
+
+	for (Object* pObject : pObjects)
+		hit |= pObject->HitCheck(hitRecord);
+
+	if (!hit)
+		return pixelColor;
+
+	for (Light* pLight : pLights)
+	{
+		if (pLight->IsOn() && !pLight->IsOutOfRange(hitRecord.hitPosition, hitRecord.normal))
+		{
+			bool hasLight{ true };
+			float rayTMax{ FLT_MAX };
+			Elite::FVector3 hPointLightDir{ -pLight->GetDirection(hitRecord.hitPosition) };
+			switch (pLight->GetType())
+			{
+			case LightType::POINTLIGHT:
+				rayTMax = Magnitude(hPointLightDir);
+				hPointLightDir /= rayTMax;
+				break;
+			case LightType::DIRECTIONAL:
+				break;
+			}
+
+			if (hardShadows)
+			{
+				HitRecord shadowHitRecord{ Ray(Math::GetRayOriginOffset(hitRecord.hitPosition, hitRecord.normal), hPointLightDir, 0.f, rayTMax - 0.0001f) };
+				for (Object* pObject : pObjects)
+				{
+					if (pObject->HitCheck(shadowHitRecord, true))
+					{
+						hasLight = false;
+						break;
+					}
+				}
+			}
+
+			if (hasLight)
+			{
+				float dot{ Dot(hitRecord.normal, hPointLightDir) };
+
+				switch (lightMode)
+				{
+				case LightRenderMode::ALL:
+					pixelColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir) * pLight->CalculateIllumination(hitRecord.hitPosition) * dot;
+					break;
+				case LightRenderMode::BRDFONLY:
+					pixelColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir) * dot;
+					break;
+				case LightRenderMode::LIGHTSOURCETONLY:
+					pixelColor += pLight->CalculateIllumination(hitRecord.hitPosition) * dot;
+					break;
+				}
+			}
+		}
+	}
+
+	Elite::RGBColor reflectFactor{ hitRecord.pMaterial->GetReflectance() };
+	if (reflectFactor.r > 0.f && reflectFactor.g > 0.f && reflectFactor.b > 0.f)
+	{
+		Elite::FVector3 reflect{ Reflect(hitRecord.ray.direction, hitRecord.normal) };
+		Normalize(reflect);
+		HitRecord reflectHitRecord{ Ray(Math::GetRayOriginOffset(hitRecord.hitPosition, hitRecord.normal), reflect) };
+		pixelColor += Trace(reflectHitRecord, bounce + 1) * reflectFactor;
+	}
+
+	return pixelColor;
+}

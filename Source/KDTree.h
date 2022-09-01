@@ -67,7 +67,5 @@ private:
 	BestSplit GetBestSplit(const std::vector<Split>& splits, const Bound& nodeBounds, uint8_t axis, uint32_t triangleCount, uint32_t depth) const;
 
 	bool IntersectionNodeTest(const TriangleMesh* tMesh, HitRecord& hRecord, uint32_t currentNodeIdx, float tMin, float tMax, bool isShadowTest) const;
-
-	bool RayBoundsIntersection(const Ray& ray, const Bound& bound, float& tMin, float& tMax) const;
 };
 

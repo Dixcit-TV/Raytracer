@@ -31,6 +31,7 @@ struct HitRecord
 
 	Ray ray;
 	const Material* pMaterial;
+	Elite::FPoint3 hitPosition;
 	Elite::FVector3 normal;
 	//Elite::FPoint3 coordinates;
 	//Elite::RGBColor color;

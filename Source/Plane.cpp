@@ -22,6 +22,7 @@ bool Plane::HitCheck(HitRecord& hitRecord, bool isShadowTest) const
 		return true;
 
 	hitRecord.t = t;
+	hitRecord.hitPosition = hitRecord.ray.GetPoint(hitRecord.t);
 	hitRecord.pMaterial = m_pMaterial;
 	hitRecord.normal = m_Normal;
 

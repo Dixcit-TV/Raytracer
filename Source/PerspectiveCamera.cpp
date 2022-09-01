@@ -28,8 +28,9 @@ Ray PerspectiveCamera::CastRay(const Elite::IPoint2& pixel, uint32_t windWidth, 
 	float xScreenSpace{ ((pixel.x + .5f) * 2.f / windWidth - 1) * m_AspectRatio * m_FOV };
 	float yScreenSpace{ (-(pixel.y + .5f) * 2.f / winHeight + 1) * m_FOV };
 
-	Elite::FVector4 direction = m_LookAtMatrix * Elite::FVector4(xScreenSpace, yScreenSpace, -1.f, 0.f);
-	return Ray{ Elite::FPoint3{ m_LookAtMatrix(0, 3), m_LookAtMatrix(1, 3), m_LookAtMatrix(2, 3) }, Elite::FVector3(direction) };
+	Elite::FVector3 direction = Elite::FVector3(m_LookAtMatrix * Elite::FVector4(xScreenSpace, yScreenSpace, -1.f, 0.f));
+	Normalize(direction);
+	return Ray{ Elite::FPoint3{ m_LookAtMatrix(0, 3), m_LookAtMatrix(1, 3), m_LookAtMatrix(2, 3) }, direction };
 }
 
 void PerspectiveCamera::Update(float deltaT)

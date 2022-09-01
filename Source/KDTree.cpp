@@ -178,51 +178,9 @@ BestSplit KDTree::GetBestSplit(const std::vector<Split>& splits, const Bound& no
 bool KDTree::IntersectionTest(const TriangleMesh* tMesh, HitRecord& hRecord, bool isShadowTest) const
 {	
 	float tMin, tMax;
-	return RayBoundsIntersection(hRecord.ray, tMesh->GetBound(), tMin, tMax) ?
+	return Math::RayBoundsIntersection(hRecord.ray, tMesh->GetBound(), tMin, tMax) ?
 		IntersectionNodeTest(tMesh, hRecord, 0, tMin, tMax, isShadowTest)
 		: false;
-
-	//float tMin, tMax;
-	//if (!RayBoundsIntersection(hRecord.ray, tMesh->GetBound(), tMin, tMax))
-	//	return false;
-
-	//std::vector<Elite::FVector3> queue{};
-	//queue.push_back(Elite::FVector3(0, tMin, tMax));
-	//bool result{ false };
-	//while (queue.size() != 0 && !(isShadowTest && result))
-	//{
-	//	Elite::FVector3 currentNodeInfo{ queue.back() };
-	//	uint32_t currentNodeIdx{ uint32_t(currentNodeInfo.x) };
-	//	const TreeNode& currentNode{ m_Nodes[currentNodeIdx]};
-	//	queue.pop_back();
-
-	//	if (currentNode.isLeaf)
-	//	{
-
-	//		const size_t triCount{ currentNode.pCandidates.size() };
-	//		for (size_t idx{}; idx < triCount && (!(isShadowTest && result)); ++idx)
-	//			result |= tMesh->TraceTriangle(currentNode.pCandidates[idx], hRecord, isShadowTest);
-	//	}
-	//	else
-	//	{
-	//		float t{ (currentNode.splitValue - hRecord.ray.origin[currentNode.axis]) / hRecord.ray.direction[currentNode.axis] };
-	//		bool belowFirst{ hRecord.ray.direction[currentNode.axis] > 0 };
-	//		uint32_t nearNodeIdx{ belowFirst ? currentNodeIdx + 1 : currentNode.rChild };
-	//		uint32_t farNodeIdx{ belowFirst ? currentNode.rChild : currentNodeIdx + 1 };
-
-	//		if (t >= currentNodeInfo.z)
-	//			queue.push_back(Elite::FVector3(float(nearNodeIdx), currentNodeInfo.y, currentNodeInfo.z));
-	//		else if (t <= currentNodeInfo.y)
-	//			queue.push_back(Elite::FVector3(float(farNodeIdx), currentNodeInfo.y, currentNodeInfo.z));
-	//		else
-	//		{
-	//			queue.push_back(Elite::FVector3(float(farNodeIdx), t, currentNodeInfo.z));
-	//			queue.push_back(Elite::FVector3(float(nearNodeIdx), currentNodeInfo.y, t));
-	//		}
-	//	}
-	//}
-
-	//return result;
 }
 
 //https://graphics.stanford.edu/papers/gpu_kdtree/kdtree.pdf
@@ -256,30 +214,4 @@ bool KDTree::IntersectionNodeTest(const TriangleMesh* tMesh, HitRecord& hRecord,
 
 	return IntersectionNodeTest(tMesh, hRecord, nearNodeIdx, tMin, t, isShadowTest) 
 		| IntersectionNodeTest(tMesh, hRecord, farNodeIdx, t, tMax, isShadowTest);
-}
-
-
-//https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
-bool KDTree::RayBoundsIntersection(const Ray& ray, const Bound& bound, float& tMin, float& tMax) const
-{
-	const Elite::FVector3 invRayDir{ 1.f / ray.direction.x, 1.f / ray.direction.y, 1.f / ray.direction.z };
-
-	Elite::FPoint3 tL{ bound.min - ray.origin };
-	Elite::FPoint3 tH{ tL + bound.size };
-	tL.x *= invRayDir.x;
-	tL.y *= invRayDir.y;
-	tL.z *= invRayDir.z;
-
-	tH.x *= invRayDir.x;
-	tH.y *= invRayDir.y;
-	tH.z *= invRayDir.z;
-
-	auto minMaxX{ std::minmax(tL.x, tH.x) };
-	auto minMaxY{ std::minmax(tL.y, tH.y) };
-	auto minMaxZ{ std::minmax(tL.z, tH.z) };
-
-	tMin = std::max({ minMaxX.first, minMaxY.first, minMaxZ.first, ray.minT });
-	tMax = std::min({ minMaxX.second, minMaxY.second, minMaxZ.second, ray.maxT });
-
-	return tMin <= tMax;
 }

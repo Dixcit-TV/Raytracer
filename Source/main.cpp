@@ -59,13 +59,13 @@ void InitScene1()
 	scene1.AddObject(new Sphere(Elite::MakeTranslation(Elite::FVector3(0.f, 4.5f, 0.f)), 1.f, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Gold")));
 	scene1.AddObject(new Sphere(Elite::MakeTranslation(Elite::FVector3(2.5f, 4.5f, 0.f)), 1.f, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Iron")));
 
-	scene1.AddObject(new Triangle(Elite::FPoint3(-.75f, 1.5f, 0.f), Elite::FPoint3(-.75f, 0.f, 0.f), Elite::FPoint3(.75f, 0.f, 0.f), Elite::MakeTranslation(Elite::FVector3(-2.5f, 6.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Green"), CullMode::FRONTFACE));
-	scene1.AddObject(new Triangle(Elite::FPoint3(-.75f, 1.5f, 0.f), Elite::FPoint3(-.75f, 0.f, 0.f), Elite::FPoint3(.75f, 0.f, 0.f), Elite::MakeTranslation(Elite::FVector3(0.f, 6.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Purple"), CullMode::BACKFACE));
-	scene1.AddObject(new Triangle(Elite::FPoint3(-.75f, 1.5f, 0.f), Elite::FPoint3(-.75f, 0.f, 0.f), Elite::FPoint3(.75f, 0.f, 0.f), Elite::MakeTranslation(Elite::FVector3(2.5f, 6.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Red")));
+	//scene1.AddObject(new Triangle(Elite::FPoint3(-.75f, 1.5f, 0.f), Elite::FPoint3(-.75f, 0.f, 0.f), Elite::FPoint3(.75f, 0.f, 0.f), Elite::MakeTranslation(Elite::FVector3(-2.5f, 6.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Green"), CullMode::FRONTFACE));
+	//scene1.AddObject(new Triangle(Elite::FPoint3(-.75f, 1.5f, 0.f), Elite::FPoint3(-.75f, 0.f, 0.f), Elite::FPoint3(.75f, 0.f, 0.f), Elite::MakeTranslation(Elite::FVector3(0.f, 6.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Purple"), CullMode::BACKFACE));
+	//scene1.AddObject(new Triangle(Elite::FPoint3(-.75f, 1.5f, 0.f), Elite::FPoint3(-.75f, 0.f, 0.f), Elite::FPoint3(.75f, 0.f, 0.f), Elite::MakeTranslation(Elite::FVector3(2.5f, 6.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Red")));
 
-	//SceneGraph::GetInstance()->AddObject(new Sphere(Elite::MakeTranslation(Elite::FVector3(-2.5f, 7.f, 0.f)), 1.f, MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Green")));
-	//SceneGraph::GetInstance()->AddObject(new Sphere(Elite::MakeTranslation(Elite::FVector3(0.f, 7.f, 0.f)), 1.f, MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Purple")));
-	//SceneGraph::GetInstance()->AddObject(new Sphere(Elite::MakeTranslation(Elite::FVector3(2.5f, 7.f, 0.f)), 1.f, MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Red")));
+	scene1.AddObject(new Sphere(Elite::MakeTranslation(Elite::FVector3(-2.5f, 7.f, 0.f)), 1.f, MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Green")));
+	scene1.AddObject(new Sphere(Elite::MakeTranslation(Elite::FVector3(0.f, 7.f, 0.f)), 1.f, MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Purple")));
+	scene1.AddObject(new Sphere(Elite::MakeTranslation(Elite::FVector3(2.5f, 7.f, 0.f)), 1.f, MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Red")));
 
 	scene1.AddObject(new Plane(Elite::MakeTranslation(Elite::FVector3(0.f, 0.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
 	scene1.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationX(float(E_PI_DIV_2)), Elite::FVector3(0.f, 0.f, -6.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
@@ -93,6 +93,10 @@ void InitScene2()
 	//trMesh = new TriangleMesh("Resources/midpoly_bunny.obj", Elite::MakeTranslation(Elite::FVector3(20.f, 0.f, 0.f)) * Elite::MakeScale(Elite::FVector3(20.f, 20.f, 20.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Gold"), true);
 	//scene2.AddObject(trMesh);
 	//trMesh->SetPartition(true);
+
+	scene2.AddObject(new Sphere(Elite::MakeTranslation(Elite::FVector3(-3.5f, 5.5f, 0.f)), 1.5f, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Aluminium")));
+	scene2.AddObject(new Sphere(Elite::MakeTranslation(Elite::FVector3(0.f, 5.5f, 0.f)), 1.5f, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Gold")));
+	scene2.AddObject(new Sphere(Elite::MakeTranslation(Elite::FVector3(3.5f, 5.5f, 0.f)), 1.5f, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Iron")));
 
 	scene2.AddObject(new Plane(Elite::MakeTranslation(Elite::FVector3(0.f, 0.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
 	scene2.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationX(float(E_PI_DIV_2)), Elite::FVector3(0.f, 0.f, -10.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
@@ -128,8 +132,8 @@ int main(int argc, char* args[])
 	//Create window + surfaces
 	SDL_Init(SDL_INIT_VIDEO);
 
-	const uint32_t width = 640;
-	const uint32_t height = 480;
+	const uint32_t width = 1280;
+	const uint32_t height = 720;
 	SDL_Window* pWindow = SDL_CreateWindow(
 		"RayTracer - Thomas Vincent",
 		SDL_WINDOWPOS_UNDEFINED,

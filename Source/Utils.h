@@ -48,6 +48,15 @@ namespace Utils
 
 namespace Math
 {
+	constexpr float origin() { return 1.0f / 32.0f; }
+	constexpr float float_scale() { return 1.0f / 65536.0f; }
+	constexpr float int_scale() { return 256.0f; }
+	
+	//RayTracing Gems: A Fast and Robust Method for Avoiding Self-Intersection
+	Elite::FPoint3 GetRayOriginOffset(const Elite::FPoint3 p, const Elite::FVector3 n);
+
+	bool RayBoundsIntersection(const Ray& ray, const Bound& bound, float& tMin, float& tMax);
+
 	template<typename T>
 	bool RayTriangleIntersectionTest(HitRecord& hitRecord, const Elite::Point<3, T>& p0, const Elite::Point<3, T>& p1, const Elite::Point<3, T>& p2, CullMode cullMode, bool isShadowTest = false)
 	{
@@ -107,7 +116,8 @@ namespace Math
 			return true;
 
 		hitRecord.t = t;
-		hitRecord.normal = Elite::GetNormalized(Elite::Cross(edge01, edge02)) * ((cullMode == CullMode::FRONTFACE) * -1.f + (cullMode != CullMode::FRONTFACE) * 1);
+		hitRecord.hitPosition = Elite::FPoint3(Elite::FVector3(p1) * u + Elite::FVector3(p2) * v + Elite::FVector3(p0) * (1 - u - v));
+ 		hitRecord.normal = Elite::GetNormalized(Elite::Cross(edge01, edge02)) * ((cullMode == CullMode::FRONTFACE) * -1.f + (cullMode != CullMode::FRONTFACE) * 1);
 		//hitRecord.coordinates = Elite::FPoint3(v, v , 1 - u - v);
 
 		return true;

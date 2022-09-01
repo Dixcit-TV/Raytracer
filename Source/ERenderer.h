@@ -22,6 +22,8 @@ class PerspectiveCamera;
 
 namespace Elite
 {
+	struct RGBColor;
+
 	enum class RenderMode
 	{
 		Single_Thread, Multi_Threaded
@@ -37,6 +39,7 @@ namespace Elite
 	{
 	public:
 		const uint32_t TILE_SIZE = 8;
+		const uint32_t MAX_BOUNCE = 1;
 
 		Renderer(SDL_Window* pWindow, RenderMode renderMode = RenderMode::Single_Thread, size_t threadCount = size_t(std::thread::hardware_concurrency()));
 		~Renderer();
@@ -74,7 +77,7 @@ namespace Elite
 		void RenderThreadFnc();
 		void MultiThreadedRender(PerspectiveCamera* pCamera);
 		void TileRender(PerspectiveCamera* pCamera, TileSettings tileSettings);
-		//void Shading(HitRecord hitRecord, size_t pixel);
+		Elite::RGBColor Trace(HitRecord hitRecord, uint8_t bounce);
 	};
 }
 
