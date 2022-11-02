@@ -42,7 +42,7 @@ namespace Elite
 			data[2][0] = c.x; data[2][1] = c.y; data[2][2] = c.z; data[2][3] = c.w;
 			data[3][0] = d.x; data[3][1] = d.y; data[3][2] = d.z; data[3][3] = d.w;
 		}
-		Matrix<4, 4, T>(const Matrix<3, 3, T>& m, const Vector<3, T>& t)
+		Matrix<4, 4, T>(const Matrix<3, 3, T>& m, const Point<3, T>& t)
 		{
 			data[0][0] = m.data[0][0]; data[0][1] = m.data[0][1]; data[0][2] = m.data[0][2]; data[0][3] = 0;
 			data[1][0] = m.data[1][0]; data[1][1] = m.data[1][1]; data[1][2] = m.data[1][2]; data[1][3] = 0;

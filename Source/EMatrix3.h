@@ -126,7 +126,7 @@ namespace Elite
 				lm(2, 0) * rm(0, 2) + lm(2, 1) * rm(1, 2) + lm(2, 2) * rm(2, 2));
 		}
 
-		inline Vector<3, T> operator*(const Point<3, T>& v)
+		inline Point<3, T> operator*(const Point<3, T>& v)
 		{
 			const Matrix<3, 3, T>& m = (*this);
 			return Point<3, T>(
@@ -135,7 +135,7 @@ namespace Elite
 				m(2, 0) * v.x + m(2, 1) * v.y + m(2, 2) * v.z);
 		}
 
-		inline Point<3, T> operator*(const Vector<3, T>& p)
+		inline Vector<3, T> operator*(const Vector<3, T>& p)
 		{
 			const Matrix<3, 3, T>& m = (*this);
 			return Vector<3, T>(

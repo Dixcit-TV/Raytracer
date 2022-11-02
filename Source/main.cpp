@@ -68,9 +68,9 @@ void InitScene1()
 	scene1.AddObject(new Sphere(Elite::MakeTranslation(Elite::FVector3(2.5f, 7.f, 0.f)), 1.f, MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Red")));
 
 	scene1.AddObject(new Plane(Elite::MakeTranslation(Elite::FVector3(0.f, 0.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
-	scene1.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationX(float(E_PI_DIV_2)), Elite::FVector3(0.f, 0.f, -6.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
-	scene1.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationZ(float(E_PI_DIV_2)), Elite::FVector3(5.f, 0.f, 0.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
-	scene1.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationZ(float(-E_PI_DIV_2)), Elite::FVector3(-5.f, 0.f, 0.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
+	scene1.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationX(float(E_PI_DIV_2)), Elite::FPoint3(0.f, 0.f, -6.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
+	scene1.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationZ(float(E_PI_DIV_2)), Elite::FPoint3(5.f, 0.f, 0.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
+	scene1.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationZ(float(-E_PI_DIV_2)), Elite::FPoint3(-5.f, 0.f, 0.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
 
 	scene1.AddLight(new PointLight(Elite::FPoint3(0.f, 8.f, -2.f), 25.f, Elite::RGBColor(1.f, 0.84f, 0.77f)));
 	scene1.AddLight(new PointLight(Elite::FPoint3(0.f, 5.f, 6.f), 50.f, Elite::RGBColor(1.f, 1.f, 1.f)));
@@ -99,9 +99,9 @@ void InitScene2()
 	scene2.AddObject(new Sphere(Elite::MakeTranslation(Elite::FVector3(3.5f, 5.5f, 0.f)), 1.5f, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Iron")));
 
 	scene2.AddObject(new Plane(Elite::MakeTranslation(Elite::FVector3(0.f, 0.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
-	scene2.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationX(float(E_PI_DIV_2)), Elite::FVector3(0.f, 0.f, -10.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
-	scene2.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationZ(float(E_PI_DIV_2)), Elite::FVector3(10.f, 0.f, 0.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
-	scene2.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationZ(float(-E_PI_DIV_2)), Elite::FVector3(-10.f, 0.f, 0.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
+	scene2.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationX(float(E_PI_DIV_2)), Elite::FPoint3(0.f, 0.f, -10.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
+	scene2.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationZ(float(E_PI_DIV_2)), Elite::FPoint3(10.f, 0.f, 0.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
+	scene2.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationZ(float(-E_PI_DIV_2)), Elite::FPoint3(-10.f, 0.f, 0.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
 
 	scene2.AddLight(new PointLight(Elite::FPoint3(0.f, 8.f, -2.f), 25.f, Elite::RGBColor(1.f, 0.84f, 0.77f)));
 	scene2.AddLight(new PointLight(Elite::FPoint3(0.f, 5.f, 6.f), 50.f, Elite::RGBColor(1.f, 1.f, 1.f)));

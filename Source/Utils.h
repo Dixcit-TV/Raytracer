@@ -48,12 +48,17 @@ namespace Utils
 
 namespace Math
 {
+	constexpr float PI{ 3.1415926535897932384626433832795028841971f };
+
 	constexpr float origin() { return 1.0f / 32.0f; }
 	constexpr float float_scale() { return 1.0f / 65536.0f; }
 	constexpr float int_scale() { return 256.0f; }
 	
 	//RayTracing Gems: A Fast and Robust Method for Avoiding Self-Intersection
 	Elite::FPoint3 GetRayOriginOffset(const Elite::FPoint3 p, const Elite::FVector3 n);
+	Elite::FVector3 GetCosineWeightedPoint(float r1, float r2);
+
+	Elite::FMatrix3 GetONB(const Elite::FVector3& lookAt);
 
 	bool RayBoundsIntersection(const Ray& ray, const Bound& bound, float& tMin, float& tMax);
 

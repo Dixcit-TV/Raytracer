@@ -12,6 +12,25 @@ Elite::FPoint3 Math::GetRayOriginOffset(const Elite::FPoint3 p, const Elite::FVe
 		, fabsf(p.z) < origin() ? p.z + float_scale() * n.z : *(float*)&pi.z);
 }
 
+Elite::FVector3 Math::GetCosineWeightedPoint(float r1, float r2)
+{
+	float r{ sqrtf(r1) };
+	float a{ 2 * PI * r2 };
+
+	return Elite::FVector3{ cosf(a) * r, sinf(a) * r, sqrtf(1 - r1) };
+}
+
+Elite::FMatrix3 Math::GetONB(const Elite::FVector3& lookAt)
+{
+	Elite::FVector3 right{ Cross(Utils::GetWorldY<float>(), lookAt) };
+	Normalize(right);
+	Elite::FVector3 up{ Cross(lookAt, right) };
+
+	return Elite::FMatrix3(right.x, up.x, lookAt.x
+		, right.y, up.y, lookAt.y
+		, right.z, up.z, lookAt.z);
+}
+
 //https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
 bool Math::RayBoundsIntersection(const Ray& ray, const Bound& bound, float& tMin, float& tMax)
 {

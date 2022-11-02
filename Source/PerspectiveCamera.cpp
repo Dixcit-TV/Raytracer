@@ -13,14 +13,7 @@ PerspectiveCamera::PerspectiveCamera(const Elite::FPoint3& position, const Elite
 	, m_FOV(tanf(fovAngleDeg* float(E_TO_RADIANS) / 2))
 	, m_LookAtMatrix()
 {
-	Elite::FVector3 right{ Cross(Utils::GetWorldY<float>(), nForward) };
-	Normalize(right);
-	Elite::FVector3 up{ Cross(nForward, right) };
-
-	m_LookAtMatrix = Elite::FMatrix4(right.x, up.x, nForward.x, position.x
-		, right.y, up.y, nForward.y, position.y
-		, right.z, up.z, nForward.z, position.z
-		, 0.f, 0.f, 0.f, 1.f);
+	m_LookAtMatrix = Elite::FMatrix4(Math::GetONB(nForward), position);
 }
 
 Ray PerspectiveCamera::CastRay(const Elite::IPoint2& pixel, uint32_t windWidth, uint32_t winHeight) const

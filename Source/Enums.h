@@ -15,8 +15,8 @@ enum class LightType
 
 enum class LightRenderMode
 {
-	ALL
-	, BRDFONLY
-	, LIGHTSOURCETONLY
+	ALL					= 0b11
+	, BRDFONLY			= 0b01
+	, LIGHTSOURCETONLY	= 0b10
 	, COUNT = 3
 };
