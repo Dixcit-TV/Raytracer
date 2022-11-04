@@ -10,9 +10,9 @@ Elite::FVector3 PointLight::GetDirection(const Elite::FPoint3& lookAt) const
 	return lookAt - m_Pos;
 }
 
-bool PointLight::IsOutOfRange(const Elite::FPoint3& hitPoint, const Elite::FVector3& hitNormal) const
+bool PointLight::IsOutOfRange(const Elite::FPoint3& hitPoint) const
 {
-	return Dot(hitNormal, m_Pos - hitPoint) <= FLT_EPSILON || (m_Intensity / SqrDistance(hitPoint, m_Pos)) < 0.001f;
+	return (m_Intensity / SqrDistance(hitPoint, m_Pos)) < 0.0001f;
 }
 
 Elite::RGBColor PointLight::CalculateIllumination(const Elite::FPoint3& hitPoint) const

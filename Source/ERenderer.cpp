@@ -175,15 +175,17 @@ Elite::RGBColor Elite::Renderer::Trace(HitRecord hitRecord, uint8_t bounce)
 
 	ProjectSettings* pProjectSettings{ ProjectSettings::GetInstance() };
 	bool hardShadows{ pProjectSettings->IsHardShadowEnabled() };
-	LightRenderMode lightMode{ pProjectSettings->GetLightMode() };
+	//LightRenderMode lightMode{ pProjectSettings->GetLightMode() };
 
 	SceneGraph& currentScene{ SceneManager::GetInstance()->GetActiveScene() };
 	const std::vector<Object*>& pObjects{ currentScene.GetObjects() };
+	const size_t objectCount{ std::size(pObjects) };
 	const std::vector<Light*>& pLights{ currentScene.GetLights() };
+	const size_t lightCount{ std::size(pLights) };
 
 	bool hit = false;
-	Elite::RGBColor directLightColor{};
-	Elite::RGBColor indirectLightColor{};
+	Elite::RGBColor directLightColor{ 0.f, 0.f, 0.f };
+	Elite::RGBColor indirectLightColor{ 0.f, 0.f, 0.f };
 	Elite::RGBColor matColor{ 0.f, 0.f, 0.f };
 
 	for (Object* pObject : pObjects)
@@ -192,9 +194,10 @@ Elite::RGBColor Elite::Renderer::Trace(HitRecord hitRecord, uint8_t bounce)
 	if (!hit)
 		return Elite::RGBColor{};
 
+	uint32_t usedLights{};
 	for (Light* pLight : pLights)
 	{
-		if (pLight->IsOn() && !pLight->IsOutOfRange(hitRecord.hitPosition, hitRecord.normal))
+		if (pLight->IsOn() && !pLight->IsOutOfRange(hitRecord.hitPosition))
 		{
 			bool hasLight{ true };
 			float rayTMax{ FLT_MAX };
@@ -212,27 +215,28 @@ Elite::RGBColor Elite::Renderer::Trace(HitRecord hitRecord, uint8_t bounce)
 			if (hardShadows)
 			{
 				HitRecord shadowHitRecord{ Ray(Math::GetRayOriginOffset(hitRecord.hitPosition, hitRecord.normal), hPointLightDir, 0.f, rayTMax) };
-				for (Object* pObject : pObjects)
+				for (size_t objIdx{}; objIdx < objectCount && hasLight; ++objIdx)
 				{
-					if (pObject->HitCheck(shadowHitRecord, true))
-					{
-						hasLight = false;
-						break;
-					}
+					hasLight = !pObjects[objIdx]->HitCheck(shadowHitRecord, true);
 				}
 			}
 
 			if (hasLight)
 			{
 				directLightColor += pLight->CalculateIllumination(hitRecord.hitPosition)
-					* Dot(hitRecord.normal, hPointLightDir)
-					* ((int(lightMode) & int(LightRenderMode::LIGHTSOURCETONLY)) > 0);
+					* std::max(Dot(hitRecord.normal, hPointLightDir), 0.f)
+					/** ((int(lightMode) & int(LightRenderMode::LIGHTSOURCETONLY)) > 0)*/;
 			}
 
 			matColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir)
-				* ((int(lightMode) & int(LightRenderMode::BRDFONLY)) > 0);
+				/** ((int(lightMode) & int(LightRenderMode::BRDFONLY)) > 0)*/;
+
+			++usedLights;
 		}
 	}
+
+	directLightColor /= static_cast<float>(usedLights);
+	matColor /= static_cast<float>(usedLights);
 
 	//const uint8_t samples{ 1 };
 	//for (uint8_t i{}; i < samples; ++i)
