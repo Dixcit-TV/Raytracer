@@ -42,9 +42,12 @@ void InitMaterials()
 	MaterialManager::GetInstance()->AddMaterial("Mat_LambertCookTorrance_Green", new LambertCookTorranceMaterial(Elite::RGBColor(0.40f, 0.32f, 0.57f), 0.1f, false));
 	MaterialManager::GetInstance()->AddMaterial("Mat_LambertCookTorrance_Purple", new LambertCookTorranceMaterial(Elite::RGBColor(0.47f, 0.63f, 0.41f), 0.6f, false));
 	MaterialManager::GetInstance()->AddMaterial("Mat_LambertCookTorrance_Red", new LambertCookTorranceMaterial(Elite::RGBColor(0.67f, 0.17f, 0.17f), 1.f, false));
-	MaterialManager::GetInstance()->AddMaterial("Mat_LambertPhong_Purple", new LambertPhongMaterial(Elite::RGBColor(0.40f, 0.32f, 0.57f), 1.f, 6));
-	MaterialManager::GetInstance()->AddMaterial("Mat_LambertPhong_Green", new LambertPhongMaterial(Elite::RGBColor(0.47f, 0.63f, 0.41f), 0.66f, 4));
-	MaterialManager::GetInstance()->AddMaterial("Mat_LambertPhong_Red", new LambertPhongMaterial(Elite::RGBColor(0.67f, 0.17f, 0.17f), 0.33f, 8));
+	MaterialManager::GetInstance()->AddMaterial("Mat_LambertPhong_Purple", new LambertPhongMaterial(Elite::RGBColor(0.50f, 0.32f, 0.75f), 0.3f, 10.f));
+	MaterialManager::GetInstance()->AddMaterial("Mat_LambertPhong_Green", new LambertPhongMaterial(Elite::RGBColor(0.47f, 0.63f, 0.41f), 0.5f, 50.f));
+	MaterialManager::GetInstance()->AddMaterial("Mat_LambertPhong_Red", new LambertPhongMaterial(Elite::RGBColor(0.67f, 0.17f, 0.17f), 0.1f, 75.f));
+	MaterialManager::GetInstance()->AddMaterial("Mat_Lambert_LightGrey", new LambertMaterial(Elite::RGBColor(0.85f, 0.85f, 0.85f)));
+	MaterialManager::GetInstance()->AddMaterial("Mat_Lambert_Green", new LambertMaterial(Elite::RGBColor(0.f, 1.f, 0.f)));
+	MaterialManager::GetInstance()->AddMaterial("Mat_Lambert_Red", new LambertMaterial(Elite::RGBColor(1.f, 0.f, 0.f)));
 	MaterialManager::GetInstance()->AddMaterial("Mat_LambertCookTorrance_Yellow", new LambertCookTorranceMaterial(Elite::RGBColor(0.9f, 0.8f, 0.5f), 0.8f, false));
 }
 
@@ -67,14 +70,15 @@ void InitScene1()
 	scene1.AddObject(new Sphere(Elite::MakeTranslation(Elite::FVector3(0.f, 7.f, 0.f)), 1.f, MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Purple")));
 	scene1.AddObject(new Sphere(Elite::MakeTranslation(Elite::FVector3(2.5f, 7.f, 0.f)), 1.f, MaterialManager::GetInstance()->GetMaterial("Mat_LambertPhong_Red")));
 
-	scene1.AddObject(new Plane(Elite::MakeTranslation(Elite::FVector3(0.f, 0.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
-	scene1.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationX(float(E_PI_DIV_2)), Elite::FPoint3(0.f, 0.f, -6.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
-	scene1.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationZ(float(E_PI_DIV_2)), Elite::FPoint3(5.f, 0.f, 0.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
-	scene1.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationZ(float(-E_PI_DIV_2)), Elite::FPoint3(-5.f, 0.f, 0.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_LambertCookTorrance_Yellow")));
+	scene1.AddObject(new Plane(Elite::MakeTranslation(Elite::FVector3(0.f, 0.f, 0.f)), MaterialManager::GetInstance()->GetMaterial("Mat_Lambert_LightGrey")));
+	scene1.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationX(float(E_PI_DIV_2)), Elite::FPoint3(0.f, 0.f, -6.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_Lambert_LightGrey")));
+	scene1.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationZ(float(E_PI_DIV_2)), Elite::FPoint3(5.f, 0.f, 0.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_Lambert_Green")));
+	scene1.AddObject(new Plane(Elite::FMatrix4{ Elite::MakeRotationZ(float(-E_PI_DIV_2)), Elite::FPoint3(-5.f, 0.f, 0.f) }, MaterialManager::GetInstance()->GetMaterial("Mat_Lambert_Red")));
 
-	scene1.AddLight(new PointLight(Elite::FPoint3(0.f, 8.f, -2.f), 25.f, Elite::RGBColor(1.f, 0.84f, 0.77f)));
-	scene1.AddLight(new PointLight(Elite::FPoint3(0.f, 5.f, 6.f), 50.f, Elite::RGBColor(1.f, 1.f, 1.f)));
-	scene1.AddLight(new DirectionalLight(Elite::FVector3(0.f, -1.f, 0.f), 1.f, Elite::RGBColor(0.79f, 1.f, 1.f)));
+	scene1.AddLight(new PointLight(Elite::FPoint3(0.f, 8.f, -2.f), 50.f, Elite::RGBColor(1.f, 0.84f, 0.77f)));
+	scene1.AddLight(new PointLight(Elite::FPoint3(0.f, 5.f, 6.f), 75.f, Elite::RGBColor(1.f, 1.f, 1.f)));
+	scene1.AddLight(new PointLight(Elite::FPoint3(0.f, 10.f, 0.f), 35.f, Elite::RGBColor(0.79f, 1.f, 1.f)));
+	//scene1.AddLight(new DirectionalLight(Elite::FVector3(0.f, -1.f, 0.f), 5.f, Elite::RGBColor(0.79f, 1.f, 1.f)));
 
 	SceneManager::GetInstance()->AddScene(std::move(scene1));
 }

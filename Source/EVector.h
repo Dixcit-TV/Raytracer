@@ -77,7 +77,7 @@ namespace Elite
 	//Returns the reflect vector d around n
 	template<int N, typename T>
 	inline Vector<N, T> Reflect(const Vector<N, T>& d, const Vector<N, T>& n)
-	{ return d - static_cast<T>(2)* Dot(d, n) * n; }
+	{ return static_cast<T>(2)* Dot(d, n) * n - d; }
 
 	//Returns angle from v1 to v2 in radians
 	template<int N, typename T>

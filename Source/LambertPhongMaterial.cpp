@@ -2,8 +2,8 @@
 #include "Structs.h"
 #include "BRDF.h"
 
-LambertPhongMaterial::LambertPhongMaterial(const Elite::RGBColor& diffuseReflectance, float specularReflectance, int phongExponent)
-	: LambertMaterial(diffuseReflectance)
+LambertPhongMaterial::LambertPhongMaterial(const Elite::RGBColor& diffuseReflectance, float specularReflectance, float phongExponent)
+	: LambertMaterial(diffuseReflectance * (1.f - specularReflectance))
 	, m_SpecularReflectance(specularReflectance)
 	, m_PhongExponent(phongExponent)
 {}

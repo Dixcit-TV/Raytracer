@@ -4,7 +4,7 @@
 class LambertPhongMaterial final : public LambertMaterial
 {
 public:
-	explicit LambertPhongMaterial(const Elite::RGBColor& diffuseReflectance, float specularReflectance, int phongExponent);
+	explicit LambertPhongMaterial(const Elite::RGBColor& diffuseReflectance, float specularReflectance, float phongExponent);
 	~LambertPhongMaterial() override = default;
 
 	Elite::RGBColor Shade(const HitRecord& hitRecord, const Elite::FVector3& lightVector) const override;
@@ -12,6 +12,6 @@ public:
 
 private:
 	float m_SpecularReflectance;
-	int m_PhongExponent;
+	float m_PhongExponent;
 };
 

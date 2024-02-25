@@ -17,5 +17,5 @@ bool PointLight::IsOutOfRange(const Elite::FPoint3& hitPoint) const
 
 Elite::RGBColor PointLight::CalculateIllumination(const Elite::FPoint3& hitPoint) const
 {
-	return m_Color * m_Intensity / SqrDistance(hitPoint, m_Pos);
+	return m_Color * m_Intensity / (4.f * float(E_PI) * SqrDistance(hitPoint, m_Pos));
 }

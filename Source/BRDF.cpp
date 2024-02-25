@@ -5,11 +5,11 @@ Elite::RGBColor BRDF::Lambert(const Elite::RGBColor& diffuseReflectance)
 	return diffuseReflectance / float(E_PI);
 }
 
-Elite::RGBColor BRDF::Phong(float specularReflectance, int phongExponent, const Elite::FVector3& lightVector, const Elite::FVector3& viewVector, const Elite::FVector3& normal)
+Elite::RGBColor BRDF::Phong(float specularReflectance, float phongExponent, const Elite::FVector3& lightVector, const Elite::FVector3& viewVector, const Elite::FVector3& normal)
 {
 	const Elite::FVector3 reflect{ Reflect(lightVector, normal) };
-	float rDotV = std::max(Elite::Dot(reflect, viewVector), 0.f);
-	return Elite::RGBColor(specularReflectance, specularReflectance, specularReflectance) * powf(rDotV, float(phongExponent));
+	const float rDotV = std::max(Elite::Dot(reflect, viewVector), 0.f);
+	return Elite::RGBColor(specularReflectance, specularReflectance, specularReflectance) * powf(rDotV, phongExponent);
 }
 
 Elite::RGBColor BRDF::Cook_Torrance(const Elite::RGBColor& dfg, const Elite::FVector3& lightVector, const Elite::FVector3& viewVector, const Elite::FVector3& normal)

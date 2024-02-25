@@ -163,7 +163,7 @@ void Elite::Renderer::TileRender(PerspectiveCamera* pCamera, TileSettings tileSe
 			Elite::RGBColor pixelColor{ Elite::Renderer::Trace(hitRecord, 0) };
 
 			//Fill the pixels - pixel access demo
-			m_pBackBufferPixels[c + (r * m_Width)] = GetSDL_ARGBColor(pixelColor);
+			m_pBackBufferPixels[c + (r * m_Width)] = GetSDL_ARGBColor(GammaCorrection(pixelColor));
 		}
 	}
 }
@@ -175,7 +175,7 @@ Elite::RGBColor Elite::Renderer::Trace(HitRecord hitRecord, uint8_t bounce)
 
 	ProjectSettings* pProjectSettings{ ProjectSettings::GetInstance() };
 	bool hardShadows{ pProjectSettings->IsHardShadowEnabled() };
-	//LightRenderMode lightMode{ pProjectSettings->GetLightMode() };
+	LightRenderMode lightMode{ pProjectSettings->GetLightMode() };
 
 	SceneGraph& currentScene{ SceneManager::GetInstance()->GetActiveScene() };
 	const std::vector<Object*>& pObjects{ currentScene.GetObjects() };
@@ -194,7 +194,6 @@ Elite::RGBColor Elite::Renderer::Trace(HitRecord hitRecord, uint8_t bounce)
 	if (!hit)
 		return Elite::RGBColor{};
 
-	uint32_t usedLights{};
 	for (Light* pLight : pLights)
 	{
 		if (pLight->IsOn() && !pLight->IsOutOfRange(hitRecord.hitPosition))
@@ -205,38 +204,30 @@ Elite::RGBColor Elite::Renderer::Trace(HitRecord hitRecord, uint8_t bounce)
 			switch (pLight->GetType())
 			{
 			case LightType::POINTLIGHT:
-				rayTMax = Magnitude(hPointLightDir);
-				hPointLightDir /= rayTMax;
+				rayTMax = Normalize(hPointLightDir);
 				break;
 			case LightType::DIRECTIONAL:
 				break;
 			}
 
-			if (hardShadows)
+			HitRecord shadowHitRecord{ Ray(Math::GetRayOriginOffset(hitRecord.hitPosition, hitRecord.normal), hPointLightDir, 0.f, rayTMax) };
+			for (size_t objIdx{}; objIdx < objectCount && hasLight && hardShadows; ++objIdx)
 			{
-				HitRecord shadowHitRecord{ Ray(Math::GetRayOriginOffset(hitRecord.hitPosition, hitRecord.normal), hPointLightDir, 0.f, rayTMax) };
-				for (size_t objIdx{}; objIdx < objectCount && hasLight; ++objIdx)
-				{
-					hasLight = !pObjects[objIdx]->HitCheck(shadowHitRecord, true);
-				}
+				hasLight = !pObjects[objIdx]->HitCheck(shadowHitRecord, true);
 			}
 
-			if (hasLight)
-			{
-				directLightColor += pLight->CalculateIllumination(hitRecord.hitPosition)
-					* std::max(Dot(hitRecord.normal, hPointLightDir), 0.f)
-					/** ((int(lightMode) & int(LightRenderMode::LIGHTSOURCETONLY)) > 0)*/;
-			}
+			directLightColor += pLight->CalculateIllumination(hitRecord.hitPosition)
+				* hasLight
+				* std::max(Dot(hitRecord.normal, hPointLightDir), 0.f)
+				* ((int(lightMode) & int(LightRenderMode::LIGHTSOURCETONLY)) != 0);
 
 			matColor += hitRecord.pMaterial->Shade(hitRecord, hPointLightDir)
-				/** ((int(lightMode) & int(LightRenderMode::BRDFONLY)) > 0)*/;
-
-			++usedLights;
+				* ((int(lightMode) & int(LightRenderMode::BRDFONLY)) != 0);
 		}
 	}
 
-	directLightColor /= static_cast<float>(usedLights);
-	matColor /= static_cast<float>(usedLights);
+	directLightColor /= static_cast<float>(lightCount);
+	matColor /= static_cast<float>(lightCount);
 
 	//const uint8_t samples{ 1 };
 	//for (uint8_t i{}; i < samples; ++i)
@@ -252,7 +243,6 @@ Elite::RGBColor Elite::Renderer::Trace(HitRecord hitRecord, uint8_t bounce)
 	//indirectLightColor /= samples;
 
 	Elite::RGBColor pixelColor{ (directLightColor + indirectLightColor) * matColor };
-	pixelColor.MaxToOne();
 
 	return pixelColor;
 }

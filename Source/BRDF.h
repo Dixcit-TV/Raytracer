@@ -5,7 +5,7 @@ namespace BRDF
 {
 	Elite::RGBColor Lambert(const Elite::RGBColor& diffuseReflectance);
 
-	Elite::RGBColor Phong(float specularReflectance, int phongExponent, const Elite::FVector3& lightVector, const Elite::FVector3& viewVector, const Elite::FVector3& normal);
+	Elite::RGBColor Phong(float specularReflectance, float phongExponent, const Elite::FVector3& lightVector, const Elite::FVector3& viewVector, const Elite::FVector3& normal);
 
 	Elite::RGBColor Cook_Torrance(const Elite::RGBColor& dfg, const Elite::FVector3& lightVector, const Elite::FVector3& viewVector, const Elite::FVector3& normal);
 }
